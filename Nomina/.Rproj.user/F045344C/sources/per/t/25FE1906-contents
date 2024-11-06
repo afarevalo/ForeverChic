@@ -115,12 +115,14 @@ Data_Color <- import(nombre_archivo_salida)
 #===============================================================================
 
 # Manejor Servicio de los Socios
-
+# Concicional Para recalificar a los socios
 Data$Precio <- ifelse(Data$`Nombre cliente` == "Carlitos Arevalo" | 
                       Data$`Nombre cliente` == "Sandra Mogollon" |
                       Data$`Nombre cliente` == "Sandra Mogollon" |
-                      Data$`Nombre cliente` == "Andres Arevalo", 
-                      Data$`Precio de Lista`, Data$Precio)
+                      Data$`Nombre cliente` == "Andres Arevalo" |
+                      Data$`Nombre cliente` == "Andres Felipe" |
+                      Data$`Nombre cliente` == "Carlos Arévalo", 
+                      Data$`Precio de Lista` & Data$Precio == 0, Data$Precio)
 
 #===============================================================================
 
@@ -136,6 +138,15 @@ suma_grupo2 <- rowSums(Data[, c("Tarjeta de Crédito", "Tarjeta de Débito", "Ch
 # Condicional para Asignar la dummy del % de Transacción
 Data$Dummy_trans <- ifelse(suma_grupo2 >= 2, 1,
                     ifelse(suma_grupo1 >= 1, 0, NA))
+
+#===============================================================================
+
+# Eliminar las columnas especificadas de la base de datos Data
+Data <- Data %>% select(-Descuento, -Efectivo, -Otro, -Giftcard, 
+                        -`Nequi Carlos`, -`Daviplata Carlos`, -`Nequi Nambad`, 
+                        -`Daviplata Nambad`, -`Tarjeta de Crédito`, 
+                        -`Tarjeta de Débito`, -Cheque, -`Transferencia Bancaria`, 
+                        -Bold)
 
 #===============================================================================
 
@@ -276,13 +287,35 @@ Data$Part_salon <- ifelse(Data$Precio > 0,
 # Manejo de Descuentos - Profesionales
 #===============================================================================
 
+# Condicional para que el Cliente se vuelva profesional
 Data$`Prestador/Vendedor` <- ifelse(Data$Part_profesional == "Descuento", Data$`Nombre cliente`,Data$`Prestador/Vendedor`)
+
+# Condicional para que el precio pase de ser 0 al Precio de Lista
 Data$Precio <- ifelse(Data$Part_profesional == "Descuento", Data$`Precio de Lista`,Data$Precio)
+
+# Condicional para cambiar el nombre del cliente por la descripción del descuento
 Data$`Nombre cliente` <- ifelse(Data$Part_profesional == "Descuento", "Ajuste de Producto" ,Data$`Nombre cliente`)
 
-#Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",  ,NA)
+# Descuentos por Area
+Des_Alianza <- 0.8
+Des_Spa <- 0.45
+Des_Bac <- 0.4
+Des_Tocador <- 0.55
+Des_Depilacion <- 0.6
+Des_Venta <- 0.08
+Des_Color <- 0.55
 
-Nuevo <- Data %>% filter(Part_profesional == "Descuento")
+Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",
+                            ifelse(Data$Tipo == "Alianza", -Data$Precio * Des_Alianza,
+                            ifelse(Data$Tipo == "Spa", -Data$Precio * Des_Spa,
+                            ifelse(Data$Tipo == "Bac", -Data$Precio * Des_Bac, 
+                            ifelse(Data$Tipo == "Tocador", -Data$Precio * Des_Tocador, # y LOS 4.800????
+                            ifelse(Data$Tipo == "Depilacion", -Data$Precio * Des_Depilacion,
+                            ifelse(Data$Tipo == "Venta", -Data$Precio * Des_Venta,
+                            ifelse(Data$Tipo == "Color", -Data$Precio * Des_Color, NA)))))))
+                          ,NA)
+# Verificar
+# Nuevo <- Data %>% filter(`Nombre cliente` == "Ajuste de Producto")
 
 #===============================================================================
 
