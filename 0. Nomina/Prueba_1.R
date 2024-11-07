@@ -17,8 +17,8 @@ library(rio)
 
 # Cargar los Datos
 # Reporte de ventas
-archivo_original <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/1. reporte_de_ventas_Oct_1_31.xlsx"
-Reporte <- read_excel(archivo_original, sheet = "Produccion v2", range = "A2:BG719")
+archivo_original <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/1. reporte_de_ventas_OCT_1_15.xlsx"
+Reporte <- read_excel(archivo_original, sheet = "Produccion v2", range = "A2:BG318")
 
 # Visualizar los Datos
 # View(Reporte)
@@ -111,7 +111,7 @@ list.files()
 install_formats() # Cuestiones de importacion de archivos del paquete rio
 Data_Color <- import(nombre_archivo_salida)
 
-View(Data_Color)
+#View(Data_Color)
 
 #===============================================================================
 # ***************************** Verificar la Data ***************************** 
@@ -119,11 +119,11 @@ View(Data_Color)
 
 # Manejor Servicio de los Socios
 # Concicional Para recalificar a los socios
-Data$Precio <- ifelse(Data$`Nombre cliente` == "Carlitos Arevalo" | 
-                      Data$`Nombre cliente` == "Sandra Mogollon" |
-                      Data$`Nombre cliente` == "Sandra Mogollon" |
-                      Data$`Nombre cliente` == "Carlos Arévalo", 
-                      Data$`Precio de Lista`, Data$`Precio de Lista`)
+Data$Precio <- ifelse(
+                      (Data$`Nombre cliente` %in% c("Carlitos Arevalo", 
+                      "Sandra Mogollon", "Sandra Mogollón", "Carlos Arévalo")) & 
+                      Data$Precio == 0, Data$`Precio de Lista`, Data$Precio
+                      )
 
 #===============================================================================
 
@@ -268,6 +268,16 @@ Data$Part_profesional <- ifelse(Data$`Nombre cliente` %in% Base_Profesionales$Pr
                           ifelse(Data$Tipo == "Maquillaje_S" & Data$Precio > 0, 
                                 Data$Precio * Parte_Maquillaje_S - Data$Valor_producto, NA))))))))))
 
+# Manejo Corte y Limpieza Termocut
+Parte_Maquillaje_S <- 0.45
+
+# Condicional para arreglar el %
+Data$Part_profesional <- ifelse(
+                                (Data$`Servicio/Producto` %in% c("Promoción Corte y Limpieza termocut", 
+                                "Corte y Limpieza termocut")), Data$Precio * 0.45, Data$Part_profesional
+)
+
+# Condicional para revisar errores
 Data$Part_profesional <- ifelse(is.na(Data$Tipo), "Revisar", Data$Part_profesional)
   
 # Reemplazar NA en Part_profesional con 0 para evitar problemas en la operación
@@ -340,15 +350,9 @@ Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",
 
 # Crear la carpeta de Resultados
 nombre_carpeta <- paste0(nombre_original, " - NOMINA")
-
-#nombre_original <- tools::file_path_sans_ext(basename(archivo_original))
 dir.create(file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta))
 
 #===============================================================================
-
-# Eliminar las columnas especificadas de la base de datos Data
-Data <- Data %>% select(-Identificador, -`Precio de Lista`, -Tipo, 
-                        -`Dummy_trans`, -`Porc_trans`, -`Part_salon`)
 
 # Nueva variable para asegurar la revisión
 Data$Revisar <- NA
@@ -358,6 +362,12 @@ Data$Revisar <- ifelse(Data$Part_profesional == "Revisar", "Revisar", NA)
 Data$Part_profesional <- ifelse(Data$Part_profesional == "Revisar", 0, Data$Part_profesional)
 Data$Part_profesional <-as.numeric(Data$Part_profesional)
 
+# Exportar Data
+write_xlsx(Data, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta, "0. Consolidado.xlsx"))
+
+# Eliminar las columnas especificadas de la base de datos Data
+Data <- Data %>% select(-Identificador, -`Precio de Lista`, -Tipo, 
+                        -`Dummy_trans`, -`Porc_trans`, -`Part_salon`)
 # Verificar los profesionales
 valores_unicos <- unique(Data$`Prestador/Vendedor`)
 valores_unicos
@@ -378,3 +388,4 @@ for (trabajador in valores_unicos) {
   write_xlsx(datos_trabajador, ruta_archivo)
 }
 
+write_xlsx(Data, ruta_archivo)

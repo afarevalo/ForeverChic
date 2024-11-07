@@ -3,7 +3,7 @@
     "path": "~/GitHub/Problem_Set_1/ForeverChic/0. Nomina/Prueba_1.R",
     "project_path": "Prueba_1.R",
     "type": "r_source",
-    "hash": "693854698",
+    "hash": "212935242",
     "contents": "",
     "dirty": false,
     "created": 1730566498096.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "308,0",
-        "scrollLine": "296"
+        "cursorPosition": "391,0",
+        "scrollLine": "370"
     },
     "folds": "",
-    "lastKnownWriteTime": 1730956140,
+    "lastKnownWriteTime": 1731012888,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1730956140388,
+    "last_content_update": 1731012888716,
     "read_only": false,
     "read_only_alternatives": []
 }
