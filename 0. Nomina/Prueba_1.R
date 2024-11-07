@@ -17,8 +17,8 @@ library(rio)
 
 # Cargar los Datos
 # Reporte de ventas
-archivo_original <- "~/GitHub/Problem_Set_1/ForeverChic/Ventas Mensuales/1. reporte_de_ventas_Oct_1_15.xlsx"
-Reporte <- read_excel(archivo_original, sheet = "Produccion v2", range = "A2:BG318")
+archivo_original <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/1. reporte_de_ventas_Oct_1_31.xlsx"
+Reporte <- read_excel(archivo_original, sheet = "Produccion v2", range = "A2:BG719")
 
 # Visualizar los Datos
 # View(Reporte)
@@ -31,6 +31,8 @@ Base_Bac <- read_excel("Info.xlsx", sheet = "4. Bac")
 Base_Colorimetria <- read_excel("Info.xlsx", sheet = "5. Colorimetria")
 Base_Venta <- read_excel("Info.xlsx", sheet = "6. Venta")
 Base_Maquillaje <- read_excel("Info.xlsx", sheet = "7. Maquillaje")
+Base_Maquillaje_Salon <- read_excel("Info.xlsx", sheet = "8. Maquillaje Salon")
+Base_Accesorios <- read_excel("Info.xlsx", sheet = "9. Accesorios")
 
 # Lista de Profesionales
 Base_Profesionales <- read_excel("Info.xlsx", sheet = "0. Profesionales")
@@ -58,7 +60,6 @@ Data$`Prestador/Vendedor` <- trimws(Data$`Prestador/Vendedor`)
 Data$Tipo <- NA
 
 # Condicional Para Clasificar el Tipo de Servicio
-
 Data$Tipo <- ifelse(Data$`Prestador/Vendedor` == "Nydia Gamba", "Alianza",
               ifelse(Data$`Servicio/Producto` %in% Base_Tocador[[1]], "Tocador",
               ifelse(Data$`Servicio/Producto` %in% Base_Spa[[1]], "Spa",
@@ -68,7 +69,9 @@ Data$Tipo <- ifelse(Data$`Prestador/Vendedor` == "Nydia Gamba", "Alianza",
               ifelse(Data$`Servicio/Producto` %in% Base_Venta[[1]], "Venta",
               ifelse(Data$`Servicio/Producto` %in% Base_Maquillaje[[1]], "Maquillaje",
               ifelse(Data$`Servicio/Producto` == "Propina desde", "Propina",
-                     NA)))))))))
+              ifelse(Data$`Servicio/Producto` %in% Base_Maquillaje_Salon[[1]], "Maquillaje_S",
+              ifelse(Data$`Servicio/Producto` %in% Base_Accesorios[[1]], "Accesorios",
+                     NA)))))))))))
 
 #===============================================================================
 # Base de Color
@@ -91,13 +94,13 @@ nombre_original <- tools::file_path_sans_ext(basename(archivo_original))
 nombre_archivo_salida <- paste0(nombre_original, " - Color.xlsx")
 
 # Escribir el archivo con el nuevo nombre en la carpeta destino
-#write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/Ventas Mensuales", nombre_archivo_salida))
+#write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
 
 #===============================================================================
 
 # Manejo del directorio
 getwd()
-directorio <- "C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/Ventas Mensuales"
+directorio <- "C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales"
 setwd(directorio)
 
 # Chequeo de los archivos del directorio
@@ -108,7 +111,7 @@ list.files()
 install_formats() # Cuestiones de importacion de archivos del paquete rio
 Data_Color <- import(nombre_archivo_salida)
 
-#View(Data_Color)
+View(Data_Color)
 
 #===============================================================================
 # ***************************** Verificar la Data ***************************** 
@@ -119,10 +122,8 @@ Data_Color <- import(nombre_archivo_salida)
 Data$Precio <- ifelse(Data$`Nombre cliente` == "Carlitos Arevalo" | 
                       Data$`Nombre cliente` == "Sandra Mogollon" |
                       Data$`Nombre cliente` == "Sandra Mogollon" |
-                      Data$`Nombre cliente` == "Andres Arevalo" |
-                      Data$`Nombre cliente` == "Andres Felipe" |
                       Data$`Nombre cliente` == "Carlos Arévalo", 
-                      Data$`Precio de Lista` & Data$Precio == 0, Data$Precio)
+                      Data$`Precio de Lista`, Data$`Precio de Lista`)
 
 #===============================================================================
 
@@ -191,7 +192,8 @@ Data$Porc_producto <- ifelse(Data$Tipo == "Spa", 0.26,
                                Producto_tocador/Data$Precio,
                         ifelse(Data$Tipo == "Tocador" & Data$Precio == 0,
                                Producto_tocador/Data$`Precio de Lista`,
-                        ifelse(Data$Tipo == "Venta", 0.56, NA))))))))
+                        ifelse(Data$Tipo == "Venta", 0.56, 
+                        ifelse(Data$Tipo == "Maquillaje_S", 0, NA)))))))))
 
 #===============================================================================
 
@@ -207,17 +209,16 @@ Data$Valor_producto <- ifelse(Data$Precio > 0, Data$Porc_producto * Data$Precio,
 
 # Completar Data con la información de Colorimetria
 
-# Cargar dplyr si aún no está cargado
-library(dplyr)
-
-# Realizar un left join para combinar Data con Data_Color_Full usando la variable "identificador"
+# Realizar un left join para combinar Data con Data_Color usando "Identificador" y "Servicio/Producto"
 Data_actualizada <- Data %>%
-  left_join(Data_Color %>% select(Identificador, Valor_producto), by = "Identificador", suffix = c("", "_full"))
+  left_join(Data_Color %>% select(Identificador, Tipo, `Servicio/Producto`, Valor_producto), 
+            by = c("Identificador", "Servicio/Producto"), suffix = c("", "_color"))
 
-# Rellenar los valores faltantes de "Valor_producto" solo donde el "Tipo" es "Colorimetria"
+# Rellenar los valores faltantes de "Valor_producto" solo donde "Tipo" es "Colorimetria"
 Data_actualizada <- Data_actualizada %>%
-  mutate(Valor_producto = ifelse(is.na(Valor_producto) & Tipo == "Colorimetria", Valor_producto_full, Valor_producto)) %>%
-  select(-Valor_producto_full)  # Eliminar la columna auxiliar
+  mutate(Valor_producto = ifelse(is.na(Valor_producto) & Tipo == "Colorimetria" & Tipo_color == "Colorimetria", 
+                                 Valor_producto_color, Valor_producto)) %>%
+  select(-Tipo_color, -Valor_producto_color)  # Eliminar las columnas auxiliares
 
 # Asignar la base de datos actualizada a "Data" si se desea
 Data <- Data_actualizada
@@ -250,6 +251,7 @@ Parte_Tocador <- 0.55
 Parte_Depilacion <- 0.6
 Parte_Venta <- 0.08
 Parte_Color <- 0.55
+Parte_Maquillaje_S <- 0.58
 
 #Condicional
 # Crear la variable Part_profesional en Data con los valores requeridos
@@ -262,7 +264,9 @@ Data$Part_profesional <- ifelse(Data$`Nombre cliente` %in% Base_Profesionales$Pr
                           ifelse(Data$Tipo == "Venta" & Data$Precio > 0, Data$Precio * Parte_Venta, 
                           ifelse(Data$Tipo == "Propina" & Data$Precio > 0, Data$Valor_Neto, 
                           ifelse(Data$Tipo == "Colorimetria" & Data$Precio > 0, 
-                                Data$Precio * Parte_Color - Data$Valor_producto, NA)))))))))
+                                Data$Precio * Parte_Color - Data$Valor_producto, 
+                          ifelse(Data$Tipo == "Maquillaje_S" & Data$Precio > 0, 
+                                Data$Precio * Parte_Maquillaje_S - Data$Valor_producto, NA))))))))))
 
 Data$Part_profesional <- ifelse(is.na(Data$Tipo), "Revisar", Data$Part_profesional)
   
@@ -288,7 +292,22 @@ Data$Part_salon <- ifelse(Data$Precio > 0,
 #===============================================================================
 
 # Condicional para que el Cliente se vuelva profesional
-Data$`Prestador/Vendedor` <- ifelse(Data$Part_profesional == "Descuento", Data$`Nombre cliente`,Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$Part_profesional == "Descuento", 
+                                    Data$`Nombre cliente`,Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 
+                                    "Johanna Jinely Quimbay Perez", "Johana Quimbay", Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 
+                                      "Olga Arango Aristizábal", "Olga Arango", Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 
+                                      "Marinela Olaya Cifuentes", "Marinela Olaya", Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 'Jose Vicente Molina" Elvis"', 
+                                    "Elvis", Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$Tipo == "Accesorios", 
+                                    "Accesorios", Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(is.na(Data$`Prestador/Vendedor`), 
+                                    "Revisar", Data$`Prestador/Vendedor`)
+Data$`Prestador/Vendedor` <- ifelse(Data$Tipo == "Maquillaje", 
+                                    "Lina", Data$`Prestador/Vendedor`)
 
 # Condicional para que el precio pase de ser 0 al Precio de Lista
 Data$Precio <- ifelse(Data$Part_profesional == "Descuento", Data$`Precio de Lista`,Data$Precio)
@@ -297,13 +316,13 @@ Data$Precio <- ifelse(Data$Part_profesional == "Descuento", Data$`Precio de List
 Data$`Nombre cliente` <- ifelse(Data$Part_profesional == "Descuento", "Ajuste de Producto" ,Data$`Nombre cliente`)
 
 # Descuentos por Area
-Des_Alianza <- 0.8
-Des_Spa <- 0.45
-Des_Bac <- 0.4
-Des_Tocador <- 0.55
-Des_Depilacion <- 0.6
+Des_Alianza <- 0
+Des_Spa <- 0.26
+Des_Bac <- 0.25
+Des_Tocador <- 0
+Des_Depilacion <- 0.15
 Des_Venta <- 0.08
-Des_Color <- 0.55
+Des_Color <- 0
 
 Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",
                             ifelse(Data$Tipo == "Alianza", -Data$Precio * Des_Alianza,
@@ -312,16 +331,50 @@ Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",
                             ifelse(Data$Tipo == "Tocador", -Data$Precio * Des_Tocador, # y LOS 4.800????
                             ifelse(Data$Tipo == "Depilacion", -Data$Precio * Des_Depilacion,
                             ifelse(Data$Tipo == "Venta", -Data$Precio * Des_Venta,
-                            ifelse(Data$Tipo == "Color", -Data$Precio * Des_Color, NA)))))))
-                          ,NA)
+                            ifelse(Data$Tipo == "Color", -Data$Precio * Des_Color, Data$Part_profesional)))))))
+                          ,Data$Part_profesional)
 # Verificar
 # Nuevo <- Data %>% filter(`Nombre cliente` == "Ajuste de Producto")
 
 #===============================================================================
 
+# Crear la carpeta de Resultados
+nombre_carpeta <- paste0(nombre_original, " - NOMINA")
 
+#nombre_original <- tools::file_path_sans_ext(basename(archivo_original))
+dir.create(file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta))
 
+#===============================================================================
 
+# Eliminar las columnas especificadas de la base de datos Data
+Data <- Data %>% select(-Identificador, -`Precio de Lista`, -Tipo, 
+                        -`Dummy_trans`, -`Porc_trans`, -`Part_salon`)
 
+# Nueva variable para asegurar la revisión
+Data$Revisar <- NA
+Data$Revisar <- ifelse(Data$Part_profesional == "Revisar", "Revisar", NA)
 
+# Corregir el formato de la variable Part_profesional
+Data$Part_profesional <- ifelse(Data$Part_profesional == "Revisar", 0, Data$Part_profesional)
+Data$Part_profesional <-as.numeric(Data$Part_profesional)
+
+# Verificar los profesionales
+valores_unicos <- unique(Data$`Prestador/Vendedor`)
+valores_unicos
+
+# Crear la carpeta de resultados (si no existe)
+ruta_resultados <- file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta)
+dir.create(ruta_resultados, recursive = TRUE, showWarnings = FALSE)
+
+# Iterar sobre cada trabajador para crear y guardar un archivo individual
+for (trabajador in valores_unicos) {
+  # Filtrar los datos para el trabajador actual
+  datos_trabajador <- Data %>% filter(`Prestador/Vendedor` == trabajador)
+  
+  # Definir la ruta de guardado del archivo Excel con el nombre del trabajador
+  ruta_archivo <- file.path(ruta_resultados, paste0(trabajador, ".xlsx"))
+  
+  # Exportar los datos filtrados a un archivo Excel
+  write_xlsx(datos_trabajador, ruta_archivo)
+}
 
