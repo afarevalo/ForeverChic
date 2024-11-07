@@ -362,12 +362,15 @@ Data$Revisar <- ifelse(Data$Part_profesional == "Revisar", "Revisar", NA)
 Data$Part_profesional <- ifelse(Data$Part_profesional == "Revisar", 0, Data$Part_profesional)
 Data$Part_profesional <-as.numeric(Data$Part_profesional)
 
+# Eliminar las columnas especificadas de la base de datos Data
+Data <- Data %>% select(-Identificador,-`Part_salon`)
+
 # Exportar Data
 write_xlsx(Data, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta, "0. Consolidado.xlsx"))
 
 # Eliminar las columnas especificadas de la base de datos Data
-Data <- Data %>% select(-Identificador, -`Precio de Lista`, -Tipo, 
-                        -`Dummy_trans`, -`Porc_trans`, -`Part_salon`)
+Data <- Data %>% select(-`Precio de Lista`, -Tipo, -`Dummy_trans`, -`Porc_trans`)
+
 # Verificar los profesionales
 valores_unicos <- unique(Data$`Prestador/Vendedor`)
 valores_unicos
@@ -389,3 +392,5 @@ for (trabajador in valores_unicos) {
 }
 
 write_xlsx(Data, ruta_archivo)
+
+
