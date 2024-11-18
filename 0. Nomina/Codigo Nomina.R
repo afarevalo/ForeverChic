@@ -526,3 +526,36 @@ cat("=================\n")
 cat(paste0("En total de nómina se deben pagar: ", 
            formatC(total_nomina, format = "f", big.mark = ",", digits = 2), "\n"))
 
+#===============================================================================
+
+# Filtrar los datos de "Marinela Olaya"
+datos_marinela <- Data %>% filter(`Prestador/Vendedor` == "Marinela Olaya")
+
+# Sumar los valores positivos de "Part_profesional"
+suma_positivos <- sum(datos_marinela$Part_profesional[datos_marinela$Part_profesional > 0], na.rm = TRUE)
+
+# Sumar los valores negativos de "Part_profesional"
+suma_negativos <- sum(datos_marinela$Part_profesional[datos_marinela$Part_profesional < 0], na.rm = TRUE)
+
+# Condicional según el valor de los positivos
+if (suma_positivos >= 900000) {
+  cat("- Marinela Olaya no necesita Apoyo Económico, pues facturó ", 
+      formatC(suma_positivos, format = "f", big.mark = ",", digits = 2), ".\n")
+} else {
+  # Calcular cuánto apoyo necesita
+  apoyo_economico <- 900000 - suma_positivos
+  
+  # Calcular el monto total a pagar incluyendo los descuentos y anticipos
+  total_pagar_marinela <- 900000 + suma_negativos
+  
+  cat("- Marinela necesita Apoyo Económico de ", 
+      formatC(apoyo_economico, format = "f", big.mark = ",", digits = 2), "\n",
+      " Pero con los descuentos y anticipos se le debe pagar", 
+      formatC(total_pagar_marinela, format = "f", big.mark = ",", digits = 2), ".\n")
+  
+  # Recalcular el total de nómina considerando el ajuste para Marinela Olaya
+  total_nomina <- sum(Data$Part_profesional, na.rm = TRUE) + total_pagar_marinela
+  
+  cat("- En total de nómina se deben pagar: ", 
+      formatC(total_nomina, format = "f", big.mark = ",", digits = 2), ".\n")
+}
