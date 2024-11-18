@@ -17,8 +17,15 @@ library(rio)
 
 # Cargar los Datos
 # Reporte de ventas
-archivo_original <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/1. reporte_de_ventas_OCT_1_15.xlsx"
-Reporte <- read_excel(archivo_original, sheet = "Produccion v2", range = "A2:BG318")
+# Ruta del archivo
+ruta_archivo <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/1. reporte_de_ventas_NOV_1_15.xlsx"
+
+# Leer el archivo
+Reporte <- read_excel(ruta_archivo, sheet = "Produccion v2")
+
+colnames(Reporte) <- Reporte[1, ]
+Reporte <- Reporte[-c(1:1),]
+rownames(Reporte) <- NULL
 
 # Visualizar los Datos
 # View(Reporte)
@@ -37,14 +44,18 @@ Base_Accesorios <- read_excel("Info.xlsx", sheet = "9. Accesorios")
 # Lista de Profesionales
 Base_Profesionales <- read_excel("Info.xlsx", sheet = "0. Profesionales")
 
+# Lista de Descuentos 
+Descuentos <- read_excel("~/GitHub/Problem_Set_1/ForeverChic/2. Descuentos/1. NOV_1_15.xlsx")
+
 #===============================================================================
 
 # Limpiar datos
-Data <- Reporte %>% select("Identificador","Fecha de Pago","Nombre cliente","Servicio/Producto",
-                           "Prestador/Vendedor","Precio de Lista","Precio","Descuento","Efectivo",
-                           "Tarjeta de Crédito","Tarjeta de Débito","Cheque","Otro",
-                           "Giftcard","Transferencia Bancaria","Nequi Carlos","Daviplata Carlos","Nequi Nambad",
-                           "Daviplata Nambad","Bold")
+Data <- Reporte %>% select("Identificador","Fecha de Pago","Nombre cliente",
+                           "Servicio/Producto","Prestador/Vendedor","Precio de Lista",
+                           "Precio","Descuento","Efectivo","Tarjeta de Crédito",
+                           "Tarjeta de Débito","Cheque","Otro","Giftcard",
+                           "Transferencia Bancaria","Nequi Carlos","Daviplata Carlos",
+                           "Nequi Nambad","Daviplata Nambad","Bold")
 
 # Eliminar espacios múltiples
 Data$`Nombre cliente` <- gsub("\\s+", " ", Data$`Nombre cliente`)
@@ -88,13 +99,13 @@ Data_Color <- Data_Color %>% filter(Tipo == "Colorimetria")
 Data_Color$Valor_producto <- NA
 
 # Obtener el nombre del archivo original sin la ruta ni la extensión
-nombre_original <- tools::file_path_sans_ext(basename(archivo_original))
+nombre_original <- tools::file_path_sans_ext(basename(ruta_archivo))
 
 # Crear el nombre del archivo de salida añadiendo " - Color" al nombre original
 nombre_archivo_salida <- paste0(nombre_original, " - Color.xlsx")
 
 # Escribir el archivo con el nuevo nombre en la carpeta destino
-#write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
+write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
 
 #===============================================================================
 
@@ -111,19 +122,38 @@ list.files()
 install_formats() # Cuestiones de importacion de archivos del paquete rio
 Data_Color <- import(nombre_archivo_salida)
 
-#View(Data_Color)
-
 #===============================================================================
 # ***************************** Verificar la Data ***************************** 
 #===============================================================================
 
 # Manejor Servicio de los Socios
+
+Data$`Nombre cliente` <- ifelse(Data$`Nombre cliente`== "Andres Arevalo" & Data$Precio == 0,
+                                "Carlitos Arevalo",Data$`Nombre cliente` )
+
+Data$`Nombre cliente` <- ifelse(Data$`Nombre cliente`== "Elsa Arevalo" & Data$Precio == 0,
+                                "Carlitos Arevalo",Data$`Nombre cliente` )
+
 # Concicional Para recalificar a los socios
 Data$Precio <- ifelse(
                       (Data$`Nombre cliente` %in% c("Carlitos Arevalo", 
                       "Sandra Mogollon", "Sandra Mogollón", "Carlos Arévalo")) & 
                       Data$Precio == 0, Data$`Precio de Lista`, Data$Precio
                       )
+
+#===============================================================================
+
+# Vector con los nombres de las columnas que deseas convertir
+columnas_a_convertir <- c( "Efectivo", "Otro", "Giftcard", "Nequi Carlos", 
+                           "Daviplata Carlos", "Nequi Nambad", "Daviplata Nambad",
+                           "Tarjeta de Crédito", "Tarjeta de Débito", "Cheque",
+                           "Transferencia Bancaria", "Bold", "Precio",
+                           "Precio de Lista")
+
+# Convertir las columnas seleccionadas a numéricas y reemplazar NA por 0
+Data[columnas_a_convertir] <- lapply(Data[columnas_a_convertir], function(columna) {
+  as.numeric(replace(columna, is.na(columna), 0))
+})
 
 #===============================================================================
 
@@ -143,11 +173,9 @@ Data$Dummy_trans <- ifelse(suma_grupo2 >= 2, 1,
 #===============================================================================
 
 # Eliminar las columnas especificadas de la base de datos Data
-Data <- Data %>% select(-Descuento, -Efectivo, -Otro, -Giftcard, 
-                        -`Nequi Carlos`, -`Daviplata Carlos`, -`Nequi Nambad`, 
-                        -`Daviplata Nambad`, -`Tarjeta de Crédito`, 
-                        -`Tarjeta de Débito`, -Cheque, -`Transferencia Bancaria`, 
-                        -Bold)
+Data <- Data %>% select(-Descuento, -Efectivo, -Otro, -Giftcard, -`Nequi Carlos`,
+                        -`Daviplata Carlos`, -`Tarjeta de Crédito`, -`Tarjeta de Débito`
+                        , -Cheque, -`Transferencia Bancaria`, -Bold)
 
 #===============================================================================
 
@@ -251,6 +279,7 @@ Parte_Tocador <- 0.55
 Parte_Depilacion <- 0.6
 Parte_Venta <- 0.08
 Parte_Color <- 0.55
+Parte_Maquillaje_Lina <- 0.58
 Parte_Maquillaje_S <- 0.58
 
 #Condicional
@@ -266,7 +295,9 @@ Data$Part_profesional <- ifelse(Data$`Nombre cliente` %in% Base_Profesionales$Pr
                           ifelse(Data$Tipo == "Colorimetria" & Data$Precio > 0, 
                                 Data$Precio * Parte_Color - Data$Valor_producto, 
                           ifelse(Data$Tipo == "Maquillaje_S" & Data$Precio > 0, 
-                                Data$Precio * Parte_Maquillaje_S - Data$Valor_producto, NA))))))))))
+                                Data$Precio * Parte_Maquillaje_S - Data$Valor_producto, 
+                          ifelse(Data$Tipo == "Maquillaje" & Data$Precio > 0, Data$Valor_Neto * Parte_Maquillaje_Lina, 
+                          ifelse(Data$Tipo == "Accesorios" & Data$Precio > 0, Data$Valor_Neto, NA))))))))))))
 
 # Manejo Corte y Limpieza Termocut
 Parte_Maquillaje_S <- 0.45
@@ -304,14 +335,6 @@ Data$Part_salon <- ifelse(Data$Precio > 0,
 # Condicional para que el Cliente se vuelva profesional
 Data$`Prestador/Vendedor` <- ifelse(Data$Part_profesional == "Descuento", 
                                     Data$`Nombre cliente`,Data$`Prestador/Vendedor`)
-Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 
-                                    "Johanna Jinely Quimbay Perez", "Johana Quimbay", Data$`Prestador/Vendedor`)
-Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 
-                                      "Olga Arango Aristizábal", "Olga Arango", Data$`Prestador/Vendedor`)
-Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 
-                                      "Marinela Olaya Cifuentes", "Marinela Olaya", Data$`Prestador/Vendedor`)
-Data$`Prestador/Vendedor` <- ifelse(Data$`Prestador/Vendedor` == 'Jose Vicente Molina" Elvis"', 
-                                    "Elvis", Data$`Prestador/Vendedor`)
 Data$`Prestador/Vendedor` <- ifelse(Data$Tipo == "Accesorios", 
                                     "Accesorios", Data$`Prestador/Vendedor`)
 Data$`Prestador/Vendedor` <- ifelse(is.na(Data$`Prestador/Vendedor`), 
@@ -338,7 +361,7 @@ Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",
                             ifelse(Data$Tipo == "Alianza", -Data$Precio * Des_Alianza,
                             ifelse(Data$Tipo == "Spa", -Data$Precio * Des_Spa,
                             ifelse(Data$Tipo == "Bac", -Data$Precio * Des_Bac, 
-                            ifelse(Data$Tipo == "Tocador", -Data$Precio * Des_Tocador, # y LOS 4.800????
+                            ifelse(Data$Tipo == "Tocador", -Producto_tocador,
                             ifelse(Data$Tipo == "Depilacion", -Data$Precio * Des_Depilacion,
                             ifelse(Data$Tipo == "Venta", -Data$Precio * Des_Venta,
                             ifelse(Data$Tipo == "Color", -Data$Precio * Des_Color, Data$Part_profesional)))))))
@@ -350,7 +373,7 @@ Data$Part_profesional <- ifelse(Data$Part_profesional == "Descuento",
 
 # Crear la carpeta de Resultados
 nombre_carpeta <- paste0(nombre_original, " - NOMINA")
-dir.create(file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta))
+dir.create(file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/3. Resultados", nombre_carpeta))
 
 #===============================================================================
 
@@ -365,32 +388,141 @@ Data$Part_profesional <-as.numeric(Data$Part_profesional)
 # Eliminar las columnas especificadas de la base de datos Data
 Data <- Data %>% select(-Identificador,-`Part_salon`)
 
+# Reescribe los NAs de los profesionales
+Data$`Prestador/Vendedor` <- ifelse(is.na(Data$`Prestador/Vendedor`), "Revisar", Data$`Prestador/Vendedor`)
+
+#===============================================================================
+# Incluir los Descuentos
+#===============================================================================
+
+Descuentos$Tipo_Concepto <- NA
+Descuentos <- Descuentos %>%
+  mutate(Tipo_Concepto = paste(Tipo, Concepto, Observación, sep = " - "))
+
+# Descuentos de los profesionales
+Descuentos$Valor <- ifelse(Descuentos$Profesional == "Ines Torres" & 
+                           Descuentos$Tipo == "Apoyo", Descuentos$Valor,
+                           Descuentos$Valor * (-1))
+
+# Cambiar nombre de las variabes para usar Full join
+Descuentos <- Descuentos %>% rename(`Fecha de Pago` = Fecha)
+Descuentos <- Descuentos %>% rename(`Prestador/Vendedor` = Profesional)
+Descuentos <- Descuentos %>% rename(`Servicio/Producto` = Tipo_Concepto)
+Descuentos <- Descuentos %>% rename(`Part_profesional` = Valor)
+
+# Elminina la variable
+Descuentos <- Descuentos %>% select(-Concepto, -Observación)
+
+# Cambia el formato de la Fecha para usar Full join
+Descuentos$`Fecha de Pago` <- as.character(Descuentos$`Fecha de Pago`)
+
+#===============================================================================
+
+# Unir las base de datos
+Data <- full_join(Data, Descuentos)
+
+#===============================================================================
+
+# Descuento de Nequi y DaviPlata de Nydia - Alianza
+# Filtrar las filas donde "Nequi Nambad" o "Daviplata Nambad" son mayores a 0
+filas_a_duplicar <- Data %>% 
+  filter(`Nequi Nambad` > 0 | `Daviplata Nambad` > 0)
+
+# Crear las nuevas filas con las modificaciones requeridas
+nuevas_filas <- filas_a_duplicar %>%
+  mutate(
+    `Nombre cliente` = "Pago Anticipado", # Cambiar "Tipo" a "Pago Anticipado"
+    Part_profesional = -1 * (`Nequi Nambad` + `Daviplata Nambad`) # Calcular "Part_profesional"
+  )
+
+# Añadir las nuevas filas a la base de datos original
+Data <- bind_rows(Data, nuevas_filas)
+
+#===============================================================================
+
+# Elimina las columnas de Nequi Y Daiplata Nydia - Alianza
+Data <- Data %>% select(-`Nequi Nambad`, -`Daviplata Nambad`)
+
+#===============================================================================
+
 # Exportar Data
-write_xlsx(Data, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta, "0. Consolidado.xlsx"))
+write_xlsx(Data, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/3. Resultados", nombre_carpeta, "0. Consolidado.xlsx"))
 
 # Eliminar las columnas especificadas de la base de datos Data
-Data <- Data %>% select(-`Precio de Lista`, -Tipo, -`Dummy_trans`, -`Porc_trans`)
+Data <- Data %>% select(-`Precio de Lista`, -Tipo, -`Dummy_trans`, -`Porc_trans`,
+                        -Porc_producto, -Valor_Neto)
 
-# Verificar los profesionales
-valores_unicos <- unique(Data$`Prestador/Vendedor`)
-valores_unicos
+#===============================================================================
+# Descargar los soportes de Pago por Profesional
+#===============================================================================
+
+# Filtrar y ajustar las columnas según el tipo de profesional
+Data_Spa <- Data %>% select(-`Cost_trans`, -Valor_producto)
+Data_Tocador <- Data %>% select(-`Cost_trans`)
+Data_Alianza <- Data %>% select(-`Valor_producto`)
+
+# Vectores de profesionales
+tocador <- c("Beto Garcia", "Elvis Molina", "Nataly Caro", "Olga Arango", "Marinela Olaya", "Ines Torres")
+alianza <- c("Nydia Gamba", "Accesorios", "Lina")
+spa <- c("Ivonne Mancipe", "Paola Pinzon", "Johana Quimbay", "Johana Matute")
+revisar <- c("Revisar")
 
 # Crear la carpeta de resultados (si no existe)
-ruta_resultados <- file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/2. Resultados", nombre_carpeta)
+ruta_resultados <- file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/3. Resultados", nombre_carpeta)
 dir.create(ruta_resultados, recursive = TRUE, showWarnings = FALSE)
 
-# Iterar sobre cada trabajador para crear y guardar un archivo individual
-for (trabajador in valores_unicos) {
-  # Filtrar los datos para el trabajador actual
-  datos_trabajador <- Data %>% filter(`Prestador/Vendedor` == trabajador)
+# Iterar sobre cada trabajador
+for (trabajador in unique(Data$`Prestador/Vendedor`)) {
   
-  # Definir la ruta de guardado del archivo Excel con el nombre del trabajador
+  # Determinar la base de datos a usar
+  if (trabajador %in% tocador) {
+    base_datos <- Data_Tocador
+  } else if (trabajador %in% alianza) {
+    base_datos <- Data_Alianza
+  } else if (trabajador %in% spa) {
+    base_datos <- Data_Spa
+  } else if (trabajador %in% revisar) {
+    base_datos <- Data
+  } else {
+    next # Ignorar trabajadores que no están en ningún vector
+  }
+  
+  # Filtrar los datos para el trabajador actual
+  datos_trabajador <- base_datos %>% filter(`Prestador/Vendedor` == trabajador)
+  
+  # Definir la ruta de guardado del archivo Excel
   ruta_archivo <- file.path(ruta_resultados, paste0(trabajador, ".xlsx"))
   
   # Exportar los datos filtrados a un archivo Excel
   write_xlsx(datos_trabajador, ruta_archivo)
 }
 
-write_xlsx(Data, ruta_archivo)
+#===============================================================================
+# Reporte Final
+#===============================================================================
 
+# Crear el reporte agrupando por trabajador y sumando la variable "Part_profesional"
+reporte <- Data %>%
+  group_by(`Prestador/Vendedor`) %>%
+  summarise(Total_a_pagar = sum(Part_profesional, na.rm = TRUE)) %>%
+  arrange(desc(Total_a_pagar)) # Ordenar por el total a pagar de mayor a menor
+
+# Calcular el total de nómina
+total_nomina <- sum(reporte$Total_a_pagar)
+
+# Imprimir el reporte en la consola
+cat("Reporte de Nómina\n")
+cat("=================\n")
+for (i in 1:nrow(reporte)) {
+  cat(
+    paste0(
+      "- ", reporte$`Prestador/Vendedor`[i], 
+      ": Se le debe pagar ", 
+      formatC(reporte$Total_a_pagar[i], format = "f", big.mark = ",", digits = 2), "\n"
+    )
+  )
+}
+cat("=================\n")
+cat(paste0("En total de nómina se deben pagar: ", 
+           formatC(total_nomina, format = "f", big.mark = ",", digits = 2), "\n"))
 
