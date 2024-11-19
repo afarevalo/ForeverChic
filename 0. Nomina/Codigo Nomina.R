@@ -105,7 +105,7 @@ nombre_original <- tools::file_path_sans_ext(basename(ruta_archivo))
 nombre_archivo_salida <- paste0(nombre_original, " - Color.xlsx")
 
 # Escribir el archivo con el nuevo nombre en la carpeta destino
-write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
+#write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
 
 #===============================================================================
 
@@ -308,6 +308,28 @@ Data$Part_profesional <- ifelse(
                                 "Corte y Limpieza termocut")), Data$Precio * 0.45, Data$Part_profesional
 )
 
+# Correción Para las Queratinas 
+# Inicializar el valor de Parte_Color
+Parte_Color <- 0.55
+
+# Verificar si se cumple la condición para duplicar observaciones
+if ("Queratina caballero - Desde" %in% Data$`Servicio/Producto`) {
+  # Identificar las filas donde se cumple la condición
+  filas_a_duplicar <- which(Data$`Servicio/Producto` == "Queratina caballero - Desde")
+  
+  # Crear las nuevas filas basadas en las filas identificadas
+  nuevas_filas <- Data[filas_a_duplicar, ] # Duplicar las filas originales
+  nuevas_filas$`Prestador/Vendedor` <- "Marinela Olaya" # Cambiar el prestador/vendedor
+  nuevas_filas$Part_profesional <- 20000 # Asignar el nuevo valor a Part_profesional
+  
+  # Actualizar las filas originales en Data
+  Data$Part_profesional[filas_a_duplicar] <- 
+    (Data$Precio[filas_a_duplicar] - Data$Valor_producto[filas_a_duplicar] - 20000) * Parte_Color
+  
+  # Agregar las nuevas filas a Data
+  Data <- rbind(Data, nuevas_filas)
+}
+
 # Condicional para revisar errores
 Data$Part_profesional <- ifelse(is.na(Data$Tipo), "Revisar", Data$Part_profesional)
   
@@ -418,6 +440,13 @@ Descuentos$`Fecha de Pago` <- as.character(Descuentos$`Fecha de Pago`)
 
 #===============================================================================
 
+# Condicional para no cobrarle a Ines Torres
+Data$Part_profesional <- ifelse(Data$`Nombre cliente` == "Ajuste de Producto" & 
+                                Data$`Prestador/Vendedor` == "Ines Torres", 0, 
+                                Data$Part_profesional)
+
+#===============================================================================
+
 # Unir las base de datos
 Data <- full_join(Data, Descuentos)
 
@@ -441,25 +470,22 @@ Data <- bind_rows(Data, nuevas_filas)
 #===============================================================================
 
 # Elimina las columnas de Nequi Y Daiplata Nydia - Alianza
-Data <- Data %>% select(-`Nequi Nambad`, -`Daviplata Nambad`)
-
-#===============================================================================
-
-# Exportar Data
-write_xlsx(Data, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/3. Resultados", nombre_carpeta, "0. Consolidado.xlsx"))
-
-# Eliminar las columnas especificadas de la base de datos Data
-Data <- Data %>% select(-`Precio de Lista`, -Tipo, -`Dummy_trans`, -`Porc_trans`,
-                        -Porc_producto, -Valor_Neto)
+Data <- Data %>% select(-`Nequi Nambad`, -`Daviplata Nambad`, -`Precio de Lista`, -`Dummy_trans`)
 
 #===============================================================================
 # Descargar los soportes de Pago por Profesional
 #===============================================================================
 
 # Filtrar y ajustar las columnas según el tipo de profesional
-Data_Spa <- Data %>% select(-`Cost_trans`, -Valor_producto)
-Data_Tocador <- Data %>% select(-`Cost_trans`)
-Data_Alianza <- Data %>% select(-`Valor_producto`)
+Data_Spa <- Data %>% select(-`Cost_trans`, -Valor_producto, -Tipo , -`Porc_trans`, -Porc_producto, -Valor_Neto)
+Data_Tocador <- Data %>% select(-`Cost_trans`, -`Porc_trans`, -Porc_producto, -Valor_Neto)
+Data_Alianza <- Data %>% select(-`Valor_producto`, -Tipo , -`Porc_trans`, -Porc_producto, -Valor_Neto)
+
+# Concidicional Para Valor_producto
+
+Data_Tocador$Valor_producto <- ifelse(Data_Tocador$Tipo == "Colorimetria", 
+                                      Data_Tocador$Valor_producto, 0)
+Data_Tocador <- Data %>% select(-Tipo)
 
 # Vectores de profesionales
 tocador <- c("Beto Garcia", "Elvis Molina", "Nataly Caro", "Olga Arango", "Marinela Olaya", "Ines Torres")
@@ -496,6 +522,13 @@ for (trabajador in unique(Data$`Prestador/Vendedor`)) {
   # Exportar los datos filtrados a un archivo Excel
   write_xlsx(datos_trabajador, ruta_archivo)
 }
+
+#===============================================================================
+# Armar Consolidado
+Data$Porcentaje <- ifelse(is.na(Data$`Nombre cliente`)== FALSE & Data$Part_profesional > 0, 
+                          Data$Part_profesional/Data$Precio, NA)
+
+Data <- Data %>% select(-Revisar)
 
 #===============================================================================
 # Reporte Final
@@ -537,6 +570,8 @@ suma_positivos <- sum(datos_marinela$Part_profesional[datos_marinela$Part_profes
 # Sumar los valores negativos de "Part_profesional"
 suma_negativos <- sum(datos_marinela$Part_profesional[datos_marinela$Part_profesional < 0], na.rm = TRUE)
 
+apoyo_economico <- 0
+
 # Condicional según el valor de los positivos
 if (suma_positivos >= 900000) {
   cat("- Marinela Olaya no necesita Apoyo Económico, pues facturó ", 
@@ -554,8 +589,34 @@ if (suma_positivos >= 900000) {
       formatC(total_pagar_marinela, format = "f", big.mark = ",", digits = 2), ".\n")
   
   # Recalcular el total de nómina considerando el ajuste para Marinela Olaya
-  total_nomina <- sum(Data$Part_profesional, na.rm = TRUE) + total_pagar_marinela
+  suma_mari <- sum(datos_marinela$Part_profesional)  
+  total_nomina <- sum(Data$Part_profesional, na.rm = TRUE) + total_pagar_marinela - suma_mari
   
   cat("- En total de nómina se deben pagar: ", 
       formatC(total_nomina, format = "f", big.mark = ",", digits = 2), ".\n")
 }
+suma_mari
+total_pagar_marinela
+total_nomina
+#===============================================================================
+
+# Verificar si apoyo_economico es mayor que 0
+if (apoyo_economico > 0) {
+  # Crear una nueva fila con los nombres exactos de las columnas
+  nueva_fila <- Data[1, ]  # Copiar la estructura de la base de datos
+  nueva_fila[] <- NA  # Limpiar los valores
+  
+  # Asignar los valores deseados a las columnas específicas
+  nueva_fila$`Prestador/Vendedor` <- "Marinela Olaya"
+  nueva_fila$Part_profesional <- apoyo_economico
+  
+  # Agregar la nueva fila a la base de datos
+  Data <- bind_rows(Data, nueva_fila)
+}
+
+#===============================================================================
+
+# Exportar Data del Consolidado
+write_xlsx(Data, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/3. Resultados", 
+                           nombre_carpeta, "0. Consolidado.xlsx"))
+
