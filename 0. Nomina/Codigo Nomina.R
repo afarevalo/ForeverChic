@@ -648,7 +648,8 @@
     # Asignar los valores deseados a las columnas específicas
     nueva_fila$`Prestador/Vendedor` <- "Marinela Olaya"
     nueva_fila$Part_profesional <- apoyo_economico
-    
+    nueva_fila$`Servicio/Producto` <- "Apoyo Económico"
+
     # Agregar la nueva fila a la base de datos
     Data <- bind_rows(Data, nueva_fila)
   }
@@ -661,5 +662,34 @@
 
   #===============================================================================
   
+  Data_marinela <- Data %>% filter(`Prestador/Vendedor` == "Marinela Olaya")
+  Data_marinela <- Data_marinela %>% select(-"Prestador/Vendedor", -Tipo, -Porc_trans, -Cost_trans,
+                          -Porc_producto, -Valor_producto, -Valor_Neto, -Porcentaje)
+
   
+  # Verificar la condición de apoyo_economico
+  if (apoyo_economico > 0) {
+    # Crear y configurar el archivo Excel
+    wb <- createWorkbook()
+    addWorksheet(wb, "Marinela Olaya")
+    writeData(wb, "Marinela Olaya", Data_marinela)
+    
+    # Crear estilo amarillo
+    estilo_amarillo <- createStyle(fgFill = "#FFFF00")
+    
+    # Aplicar estilo a las filas donde Part_profesional es negativo
+    filas_amarillas <- which(Data_marinela$Part_profesional < 0)
+    if (length(filas_amarillas) > 0) {
+      addStyle(wb, "Marinela Olaya", style = estilo_amarillo, 
+               rows = filas_amarillas + 1, cols = 1:ncol(Data_marinela), gridExpand = TRUE)
+    }
+    
+    # Guardar el archivo
+    saveWorkbook(wb, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/3. Resultados", 
+                               nombre_carpeta, "Marinela Olaya.xlsx"), overwrite = TRUE)
+    
+    cat("Archivo Excel exportado correctamente.\n")
+  } else {
+    cat("No se ejecutó el código porque apoyo_economico es menor o igual a 0.\n")
+  }
   

@@ -3,7 +3,7 @@
     "path": "~/GitHub/Problem_Set_1/ForeverChic/0. Nomina/Codigo Nomina.R",
     "project_path": "Codigo Nomina.R",
     "type": "r_source",
-    "hash": "1819613664",
+    "hash": "1735928344",
     "contents": "",
     "dirty": false,
     "created": 1731169506091.0,
@@ -12,16 +12,16 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "664,2",
-        "scrollLine": "644",
+        "cursorPosition": "694,2",
+        "scrollLine": "674",
         "docOutlineVisible": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1732229332,
+    "lastKnownWriteTime": 1732232679,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1732229332634,
+    "last_content_update": 1732232679094,
     "read_only": false,
     "read_only_alternatives": []
 }
