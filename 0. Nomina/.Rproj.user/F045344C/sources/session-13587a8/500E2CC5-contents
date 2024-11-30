@@ -20,7 +20,7 @@
   # Cargar los Datos
   # Reporte de ventas
   # Ruta del archivo
-  ruta_archivo <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/1. reporte_de_ventas_NOV_1_15.xlsx"
+  ruta_archivo <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/2. reporte_de_ventas_NOV_16_25.xlsx"
   
   # Leer el archivo
   Reporte <- read_excel(ruta_archivo, sheet = "Produccion v2")
@@ -47,7 +47,7 @@
   Base_Profesionales <- read_excel("Info.xlsx", sheet = "0. Profesionales")
   
   # Lista de Descuentos 
-  Descuentos <- read_excel("~/GitHub/Problem_Set_1/ForeverChic/2. Descuentos/1. NOV_1_15.xlsx")
+  Descuentos <- read_excel("~/GitHub/Problem_Set_1/ForeverChic/2. Descuentos/2. NOV_16_25.xlsx")
   
   #===============================================================================
   
@@ -107,7 +107,7 @@
   nombre_archivo_salida <- paste0(nombre_original, " - Color.xlsx")
   
   # Escribir el archivo con el nuevo nombre en la carpeta destino
-  #write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
+  write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
   
   #===============================================================================
   
@@ -307,8 +307,9 @@
   # Condicional para arreglar el %
   Data$Part_profesional <- ifelse(
                                   (Data$`Servicio/Producto` %in% c("Promoción Corte y Limpieza termocut", 
-                                  "Corte y Limpieza termocut")), Data$Precio * 0.45, Data$Part_profesional
-  )
+                                  "Corte y Limpieza termocut","Limpieza termocut( No Incluye Corte Diseñado)")), 
+                                  Data$Precio * 0.45, Data$Part_profesional
+                                  )
   
   # Correción Para las Queratinas 
   # Inicializar el valor de Parte_Color
