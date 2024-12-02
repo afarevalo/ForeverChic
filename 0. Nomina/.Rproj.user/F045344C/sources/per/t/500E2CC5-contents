@@ -47,7 +47,7 @@
   Base_Profesionales <- read_excel("Info.xlsx", sheet = "0. Profesionales")
   
   # Lista de Descuentos 
-  Descuentos <- read_excel("~/GitHub/Problem_Set_1/ForeverChic/2. Descuentos/2. NOV_16_25.xlsx")
+  Descuentos <- read_excel("~/GitHub/Problem_Set_1/ForeverChic/2. Descuentos/2. NOV_16_30.xlsx")
   
   #===============================================================================
   
