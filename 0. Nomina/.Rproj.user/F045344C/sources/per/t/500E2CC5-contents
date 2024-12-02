@@ -133,6 +133,9 @@
   Data$`Nombre cliente` <- ifelse(Data$`Nombre cliente`== "Andres Arevalo" & Data$Precio == 0,
                                   "Carlitos Arevalo",Data$`Nombre cliente` )
   
+  Data$`Nombre cliente` <- ifelse(Data$`Nombre cliente`== "Carlos Arevalo" & Data$Precio == 0,
+                                  "Carlitos Arevalo",Data$`Nombre cliente` )
+  
   Data$`Nombre cliente` <- ifelse(Data$`Nombre cliente`== "Elsa Arevalo" & Data$Precio == 0,
                                   "Carlitos Arevalo",Data$`Nombre cliente` )
   
