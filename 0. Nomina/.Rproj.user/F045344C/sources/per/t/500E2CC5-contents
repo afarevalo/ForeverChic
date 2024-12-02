@@ -20,7 +20,7 @@
   # Cargar los Datos
   # Reporte de ventas
   # Ruta del archivo
-  ruta_archivo <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/2. reporte_de_ventas_NOV_16_25.xlsx"
+  ruta_archivo <- "~/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales/2. reporte_de_ventas_NOV_16_30.xlsx"
   
   # Leer el archivo
   Reporte <- read_excel(ruta_archivo, sheet = "Produccion v2")
@@ -107,7 +107,7 @@
   nombre_archivo_salida <- paste0(nombre_original, " - Color.xlsx")
   
   # Escribir el archivo con el nuevo nombre en la carpeta destino
-  write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
+  #write_xlsx(Data_Color, file.path("C:/Users/windows/Documents/GitHub/Problem_Set_1/ForeverChic/1. Ventas Mensuales", nombre_archivo_salida))
   
   #===============================================================================
   
