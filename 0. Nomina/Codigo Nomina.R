@@ -286,6 +286,7 @@
   Parte_Color <- 0.55
   Parte_Maquillaje_Lina <- 0.58
   Parte_Maquillaje_S <- 0.58
+  Parte_Alianza_Producto <- 0.90
   
   #Condicional
   # Crear la variable Part_profesional en Data con los valores requeridos
@@ -308,10 +309,16 @@
   Parte_Maquillaje_S <- 0.45
   
   # Condicional para arreglar el %
-  Data$Part_profesional <- ifelse(
-                                  (Data$`Servicio/Producto` %in% c("Promoción Corte y Limpieza termocut", 
+  Data$Part_profesional <- ifelse((Data$`Servicio/Producto` %in% c("Promoción Corte y Limpieza termocut", 
                                   "Corte y Limpieza termocut","Limpieza termocut( No Incluye Corte Diseñado)")), 
-                                  Data$Precio * 0.45, Data$Part_profesional
+                                  Data$Precio * 0.45, Data$Part_profesional)
+  
+  # Condicional para Producto Nydia - Alianza (10%)
+  Data$Part_profesional <- ifelse(
+                                  (Data$`Servicio/Producto` %in% c("Producto Inhibidor de Vello 100ml") & 
+                                   Data$`Prestador/Vendedor`== "Nydia Gamba"), 
+                                   (Data$Precio - Data$Cost_trans) * Parte_Alianza_Producto ,
+                                   Data$Part_profesional
                                   )
   
   # Correción Para las Queratinas 
