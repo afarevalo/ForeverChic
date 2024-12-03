@@ -55,7 +55,7 @@
   Data <- Reporte %>% select("Identificador","Fecha de Pago","Nombre cliente",
                              "Servicio/Producto","Prestador/Vendedor","Precio de Lista",
                              "Precio","Descuento","Efectivo","Tarjeta de Crédito",
-                             "Tarjeta de Débito","Cheque","Otro","Giftcard",
+                             "Tarjeta de Débito","Cheque","Otro","gif card",
                              "Transferencia Bancaria","Nequi Carlos","Daviplata Carlos",
                              "Nequi Nambad","Daviplata Nambad","Bold")
   
@@ -148,6 +148,14 @@
   
   #===============================================================================
   
+  # Condicional para corregir el error de AgendaPro con la gif card
+  Data$`gif card` <- ifelse(Data$`gif card` == 0, 1,Data$`gif card`)
+  
+  # Cambia el Nombre la a variable
+  Data <- Data %>% rename(Giftcard = `gif card`)
+  
+  #===============================================================================
+  
   # Vector con los nombres de las columnas que deseas convertir
   columnas_a_convertir <- c( "Efectivo", "Otro", "Giftcard", "Nequi Carlos", 
                              "Daviplata Carlos", "Nequi Nambad", "Daviplata Nambad",
@@ -176,19 +184,30 @@
                       ifelse(suma_grupo1 >= 1, 0, NA))
   
   #===============================================================================
-  
-  # Eliminar las columnas especificadas de la base de datos Data
-  Data <- Data %>% select(-Descuento, -Efectivo, -Otro, -Giftcard, -`Nequi Carlos`,
-                          -`Daviplata Carlos`, -`Tarjeta de Crédito`, -`Tarjeta de Débito`
-                          , -Cheque, -`Transferencia Bancaria`, -Bold)
-  
-  #===============================================================================
-  
+
   # Rellenar los valores NA en Dummy_trans utilizando el valor existente del mismo Identificador
   Data <- Data %>%
     group_by(Identificador) %>%
     mutate(Dummy_trans = ifelse(is.na(Dummy_trans), max(Dummy_trans, na.rm = TRUE), Dummy_trans)) %>%
     ungroup()
+
+  #===============================================================================
+  
+  # Cambiar los valores en Giftcard o Bono utilizando el valor existente del mismo Identificador
+
+  Data <- Data %>%
+    group_by(Identificador) %>%
+    mutate(Giftcard = ifelse(any(Giftcard == 1, na.rm = TRUE), 1, Giftcard)) %>%
+    ungroup()
+  
+  Data$Precio <- ifelse(Data$Precio == 0 & Data$Giftcard == 1, Data$`Precio de Lista`, Data$Precio)
+  
+  #===============================================================================
+
+  # Eliminar las columnas especificadas de la base de datos Data
+  Data <- Data %>% select(-Descuento, -Efectivo, -Otro, -Giftcard, -`Nequi Carlos`,
+                          -`Daviplata Carlos`, -`Tarjeta de Crédito`, -`Tarjeta de Débito`
+                          , -Cheque, -`Transferencia Bancaria`, -Bold)
   
   #===============================================================================
   
@@ -703,4 +722,3 @@
   } else {
     cat("No se ejecutó el código porque apoyo_economico es menor o igual a 0.\n")
   }
-  
