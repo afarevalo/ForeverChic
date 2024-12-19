@@ -13,17 +13,21 @@ Data <- read_excel(file.path("1. Ventas Mensuales", nuevo_nombre))
 
 # Lista de Profesionales
 Base_Profesionales <- read_excel("0. Nomina/Info.xlsx", sheet = "0. Profesionales")
+Base_Profesionales <- as.vector(Base_Profesionales[[1]])
+Base_Profesionales
 
 #===============================================================================
 
 # Crear una lista de vectores desde el archivo Excel
 sheets <- c("1. Tocador", "2. Spa", "3. Depilacion", "4. Bac", 
             "5. Colorimetria", "6. Venta", "7. Maquillaje", 
-            "8. Maquillaje Salon", "9. Accesorios", "10. Queratina")
+            "8. Maquillaje Salon", "9. Accesorios", "10. Queratina", 
+            "11. TermoCut", "12. Venta N")
 
 tipos <- c("Tocador", "Spa", "Depilacion", "Bac", 
            "Colorimetria", "Venta", "Maquillaje", 
-           "Maquillaje_S", "Accesorios", "Queratina")
+           "Maquillaje_S", "Accesorios", "Queratina", 
+           "TermoCut", "Venta_N")
 
 # Leer todas las hojas y guardar en una lista de vectores
 servicios <- lapply(seq_along(sheets), function(i) {
