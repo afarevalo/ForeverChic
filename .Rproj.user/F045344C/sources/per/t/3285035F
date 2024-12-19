@@ -3,7 +3,7 @@
     "path": "~/GitHub/Problem_Set_1/ForeverChic/0. Nomina/APP/1. Cargar la Base.R",
     "project_path": "0. Nomina/APP/1. Cargar la Base.R",
     "type": "r_source",
-    "hash": "3502959553",
+    "hash": "1756298456",
     "contents": "",
     "dirty": false,
     "created": 1734568775280.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "16,93",
+        "cursorPosition": "15,19",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1734568799,
+    "lastKnownWriteTime": 1734570543,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1734568799192,
+    "last_content_update": 1734570543423,
     "read_only": false,
     "read_only_alternatives": []
 }

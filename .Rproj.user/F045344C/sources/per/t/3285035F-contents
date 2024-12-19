@@ -14,7 +14,7 @@ library(lubridate)
 #===============================================================================
 
 # Input del Usuario
-ruta_archivo <- "C:/Users/windows/Downloads/reporte_de_ventas_14722_2024-12-19T00_37_40+00_00.xlsx"
+ruta_archivo <- "C:/Users/windows/Downloads/reporte_de_ventas_14722_2024-12-18T21_32_50+00_00.xlsx"
 # Leer el archivo
 Data <- read_excel(ruta_archivo, sheet = "Produccion v2")
 
