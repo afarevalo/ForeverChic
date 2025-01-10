@@ -17,15 +17,18 @@ ui <- dashboardPage(
   dashboardHeader(title = "Nomina App"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Datasets", tabName = "datasets", icon = icon("folder-open")),
-      selectInput("dataset", "Datasets:", choices = c("diamonds", "mtcars")),
-      checkboxInput("editDescription", "Add/edit data description", value = FALSE),
-      checkboxInput("renameData", "Rename data", value = FALSE),
-      radioButtons("displayOption", "Display:", choices = c("preview", "str", "summary")),
-      fileInput("loadData", "Load data of type:", accept = c(".rds", ".rda", ".rdata")),
-      downloadButton("saveData", "Save data to type:"),
-      checkboxInput("showRcode", "Show R-code", value = FALSE),
-      checkboxInput("removeFromMemory", "Remove data from memory", value = FALSE)
+      menuItem("Nomina APP", tabName = "datasets", icon = icon("folder-open")),
+      fileInput(
+        "loadData", 
+        "Cargar datos (Excel o CSV):", 
+        accept = c(".csv", ".xlsx", ".xls")
+      ),
+      div(
+        style = "display: flex; flex-direction: column; gap: 10px;",
+        actionButton("editDiscounts", "Editar Descuentos", icon = icon("edit"), width = "87%"),
+        actionButton("editColor", "Editar Color", icon = icon("paint-brush"), width = "87%"),
+        actionButton("az05", "AZ-5", icon = icon("cogs"), width = "87%")
+      )
     )
   ),
   dashboardBody(
@@ -38,13 +41,13 @@ ui <- dashboardPage(
             solidHeader = TRUE,
             width = 12,
             tabsetPanel(
-              tabPanel("Manage", "Manage options here..."),
-              tabPanel("View", "View options here..."),
-              tabPanel("Visualize", "Visualize options here..."),
-              tabPanel("Pivot", "Pivot options here..."),
-              tabPanel("Explore", "Explore options here..."),
-              tabPanel("Transform", "Transform options here..."),
-              tabPanel("Combine", "Combine options here..."),
+              tabPanel("Manage", "Opciones de gestión aquí..."),
+              tabPanel("View", "Opciones de visualización aquí..."),
+              tabPanel("Visualize", "Opciones de visualización aquí..."),
+              tabPanel("Pivot", "Opciones de pivote aquí..."),
+              tabPanel("Explore", "Opciones de exploración aquí..."),
+              tabPanel("Transform", "Opciones de transformación aquí..."),
+              tabPanel("Combine", "Opciones de combinación aquí..."),
               tabPanel(
                 "Data preview",
                 tableOutput("dataPreview")
@@ -57,18 +60,76 @@ ui <- dashboardPage(
   )
 )
 
-# Define server logic 
 server <- function(input, output, session) {
-  # Placeholder dataset
-  dataset <- reactive({
-    switch(input$dataset,
-           "diamonds" = head(ggplot2::diamonds),
-           "mtcars" = head(mtcars))
+  
+  # Create reactive values to store the loaded script status and data
+  rv <- reactiveValues(
+    script_loaded = FALSE,
+    script2_loaded = FALSE,  # New flag for second script
+    data = NULL,
+    nuevo_nombre = NULL,
+    cambio = NULL
+  )
+  
+  # Observe file input and load data
+  observeEvent(input$loadData, {
+    file <- input$loadData$datapath
+    ext <- tools::file_ext(file)
+    
+    if (ext %in% c("xlsx", "xls")) {
+      # Load the scripts if not already loaded
+      if (!rv$script_loaded) {
+        source("1. Cargar la Base.R", local = TRUE)
+        rv$script_loaded <- TRUE
+      }
+      if (!rv$script2_loaded) {
+        source("2. Nombre del Archivo Base.R", local = TRUE)  # Load second script
+        rv$script2_loaded <- TRUE
+      }
+      
+      # Now try to load and process the data
+      tryCatch({
+        # Load the initial data
+        datos_cargados <- cargar_base(file)
+        
+        # Process the dates and get the new filename
+        resultados <- procesar_fechas(datos_cargados)
+        
+        # Update reactive values
+        rv$data <- resultados$data
+        rv$nuevo_nombre <- resultados$nuevo_nombre
+        rv$cambio <- resultados$cambio
+        
+      }, error = function(e) {
+        showNotification(
+          paste("Error loading file:", e$message),
+          type = "error"
+        )
+      })
+    } else if (ext == "csv") {
+      tryCatch({
+        rv$data <- read.csv(file)
+      }, error = function(e) {
+        showNotification(
+          paste("Error loading file:", e$message),
+          type = "error"
+        )
+      })
+    } else {
+      showNotification("Unsupported file type", type = "error")
+    }
   })
   
   # Display data preview
   output$dataPreview <- renderTable({
-    dataset()
+    req(rv$data)
+    head(rv$data)
+  })
+  
+  # You can add observers to react to the new values if needed
+  observe({
+    req(rv$nuevo_nombre, rv$cambio)
+    # Do something with the new filename and change status
   })
 }
 
