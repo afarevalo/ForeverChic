@@ -54,3 +54,4 @@ for (i in 1:nrow(reporte)) {
 cat("=================\n")
 cat(paste0("En total de nómina se deben pagar: ", 
            formatC(total_nomina, format = "f", big.mark = ",", digits = 2), "\n"))
+
