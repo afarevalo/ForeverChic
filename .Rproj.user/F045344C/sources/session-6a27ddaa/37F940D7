@@ -1,0 +1,28 @@
+{
+    "id": "37F940D7",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1737212347658.0,
+    "source_on_save": false,
+    "relative_order": 5,
+    "properties": {
+        "id": "a0752ea985154b3f84dd38d95a997881",
+        "name": "servicios",
+        "title": "servicios",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 3584523219393798045,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1737212347658,
+    "read_only": false,
+    "read_only_alternatives": []
+}
