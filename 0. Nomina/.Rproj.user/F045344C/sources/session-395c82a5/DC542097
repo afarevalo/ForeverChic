@@ -1,26 +1,26 @@
 {
-    "id": "CD08F6DB",
+    "id": "DC542097",
     "path": "~/GitHub/Problem_Set_1/ForeverChic/0. Nomina/0. Codigo/Codigo por Partes/1. Cargar la Base.R",
     "project_path": "0. Codigo/Codigo por Partes/1. Cargar la Base.R",
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1738598705457.0,
+    "created": 1738972156100.0,
     "source_on_save": false,
-    "relative_order": 3,
+    "relative_order": 4,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
         "cursorPosition": "20,0",
-        "scrollLine": "3"
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1738624086,
+    "lastKnownWriteTime": 1739032782,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1738624086177,
+    "last_content_update": 1739032782801,
     "read_only": false,
     "read_only_alternatives": []
 }

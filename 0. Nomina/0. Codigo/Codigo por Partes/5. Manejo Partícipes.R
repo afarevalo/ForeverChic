@@ -1,12 +1,17 @@
-cat("\014")
 #===============================================================================
 # Limpiar el entorno
 #rm(list = ls())
+cat("\014")
 #===============================================================================
-#source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-#source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
-#source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
-#source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
+# tryCatch({
+#  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
+#  source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
+#  source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
+#  source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
+# }, error = function(e) {
+#   cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
+#   stop(e)  # Detiene toda la ejecución
+# })
 #===============================================================================
 
 # Vector de Nombres de Partícipes FOREVER para manejo del Servicio a los Socios
@@ -24,7 +29,7 @@ Data$Modificado <- NA
 
 # Se modificara el la Variable Precio
 Data$Modificado <- ifelse(Data$`Nombre cliente` == "Partícipes FOREVER" & Data$Precio == 0,
-                                1, NA)
+                          1, NA)
 
 # Concicional Para recalificar a los socios
 Data$Precio <- ifelse(Data$`Nombre cliente` == "Partícipes FOREVER" & Data$Precio == 0,
@@ -35,5 +40,8 @@ Data$Precio <- ifelse(Data$`Nombre cliente` == "Partícipes FOREVER" & Data$Prec
 Data$Modificado <- ifelse(Data$Precio == 0 & Data$Descuento == "100.0 %" & 
                             !(Data$`Nombre cliente` %in% Base_Profesionales) , 1, Data$Modificado)
 Data$Precio <- ifelse(Data$Precio == 0 & Data$Descuento == "100.0 %" & 
-                      !(Data$`Nombre cliente` %in% Base_Profesionales) , 
+                        !(Data$`Nombre cliente` %in% Base_Profesionales) , 
                       Data$`Precio de Lista`, Data$Precio)
+#===============================================================================
+# Eliminar vector
+rm(participes)

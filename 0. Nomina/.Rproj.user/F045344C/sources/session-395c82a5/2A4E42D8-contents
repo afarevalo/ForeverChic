@@ -1,7 +1,7 @@
-cat("\014")
 #===============================================================================
 # Limpiar el entorno
 #rm(list = ls())
+cat("\014")
 #===============================================================================
 #source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
 #source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
