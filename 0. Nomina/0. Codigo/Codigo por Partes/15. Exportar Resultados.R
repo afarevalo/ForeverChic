@@ -1,22 +1,27 @@
-cat("\014")
 #===============================================================================
 # Limpiar el entorno
 #rm(list = ls())
+cat("\014")
 #===============================================================================
-#source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-#source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
-#source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
-#source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
-#source("0. Codigo/Codigo por Partes/5. Manejo Partícipes.R")
-#source("0. Codigo/Codigo por Partes/6. Generar la Base de Color.R")
-#source("0. Codigo/Codigo por Partes/7. Generar la Base de Descuentos.R")
-#source("0. Codigo/Codigo por Partes/8. Costos de transacción.R")
-#source("0. Codigo/Codigo por Partes/9. Participación Producto.R")
-#source("0. Codigo/Codigo por Partes/10. Completar Base con Color.R")
-#source("0. Codigo/Codigo por Partes/11. Porcentaje de los Profesionales.R")
-#source("0. Codigo/Codigo por Partes/12. Participación Salón.R")
-#source("0. Codigo/Codigo por Partes/13. Descuento Ajuste Producto.R")
-#source("0. Codigo/Codigo por Partes/14. Descuentos Varios a Profesionales.R")
+tryCatch({
+  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
+  source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
+  source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
+  source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
+  source("0. Codigo/Codigo por Partes/5. Manejo Partícipes.R")
+  source("0. Codigo/Codigo por Partes/6. Costos de transacción.R")
+  source("0. Codigo/Codigo por Partes/7. Participación Producto.R")
+  source("0. Codigo/Codigo por Partes/8. Generar la Base de Descuentos.R")
+  source("0. Codigo/Codigo por Partes/9. Generar la Base de Color.R")
+  source("0. Codigo/Codigo por Partes/10. Completar Base con Color.R")
+  source("0. Codigo/Codigo por Partes/11. Porcentaje de los Profesionales.R")
+  source("0. Codigo/Codigo por Partes/12. Participación Salón.R")
+  source("0. Codigo/Codigo por Partes/13. Descuento Ajuste Producto.R")
+  source("0. Codigo/Codigo por Partes/14. Descuentos Varios a Profesionales.R")
+}, error = function(e) {
+  cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
+  stop(e)  # Detiene toda la ejecución
+})
 #===============================================================================
 
 # Crear el Nombre de la carpeta donde se exportaran los resultados
@@ -45,6 +50,9 @@ suma_positivos <- sum(datos_marinela$Part_profesional[datos_marinela$Part_profes
 
 # Sumar los valores negativos de "Part_profesional"
 suma_negativos <- sum(datos_marinela$Part_profesional[datos_marinela$Part_profesional < 0], na.rm = TRUE)
+
+# Borrar datos de la cosnsola
+cat("\014")
 
 if (suma_positivos >= 900000) {
   cat("- Marinela Olaya no necesita Apoyo Económico, pues facturó ", 

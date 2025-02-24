@@ -1,14 +1,14 @@
 #===============================================================================
 # Limpiar el entorno
-rm(list = ls())
+#rm(list = ls())
 cat("\014")
 #===============================================================================
-tryCatch({
-  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-}, error = function(e) {
-  cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
-  stop(e)  # Detiene toda la ejecución
-})
+#tryCatch({
+#  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
+#}, error = function(e) {
+#  cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
+#  stop(e)  # Detiene toda la ejecución
+#})
 #===============================================================================
 
 if (Cambio == 0) {
@@ -35,7 +35,7 @@ if (Cambio == 0) {
   MES2 <- abreviaturas_meses[as.numeric(MES2)]
   
   # Crea la cadena de texto
-  cadena_reporte <- paste0(". reporte de ventas ", MES1, " ",  MIN, " al ", MES2, " ", MAX, ".xlsx")
+  cadena_reporte <- paste0(". Reporte de Ventas ", MES1, " ",  MIN, " al ", MES2, " ", MAX, ".xlsx")
   
   #===============================================================================
   
@@ -83,8 +83,8 @@ if (Cambio == 0) {
   Data$`Fecha de Pago` <- format(as.POSIXct(Data$`Fecha de Pago`, tz = "UTC"), 
                                  format = "%d/%m/%Y %H:%M")
   
-  # Eliminar variables 
+  # Eliminar variableS
   rm(abreviaturas_meses, archivos, archivos_ordenados, directorio, max_fecha, 
-  min_fecha, numeros, ultimo_archivo, cadena_reporte, texto_extraido, numero_extraido)
+  min_fecha, numeros, ultimo_archivo, cadena_reporte, texto_extraido)
 
 }

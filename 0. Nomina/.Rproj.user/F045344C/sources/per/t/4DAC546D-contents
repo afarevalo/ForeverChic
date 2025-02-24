@@ -1,0 +1,197 @@
+#===============================================================================
+# Predicción del número de bicicletas alquiladas
+# MCO
+#===============================================================================
+# Bienvenidos a este tutorial, donde aplicaremos la regresión lineal modelo para 
+# predecir el número de bicicletas alquiladas en un día en particular utilizando 
+# Información meteorológica y de calendario.
+
+# El objetivo es mostrar varios enfoques para las mismas tareas utilizando R y 
+# sus diversas bibliotecas útiles.
+ 
+# Para predecir el número de bicicletas alquiladas en un día en particular, dado 
+# información meteorológica y de calendario, utilizaremos un conjunto de datos 
+# que contiene Recuentos diarios de bicicletas alquiladas de la empresa de
+# alquiler de bicicletas Capital-Bikeshare en Washington D.C., junto con el clima 
+# y la temporada información. Los datos están disponibles en nuestro conjunto de 
+# datos repositorio o la UCI Repositorio de aprendizaje automático.
+
+#===============================================================================
+
+# Limpiar el entorno
+rm(list = ls())
+cat("\014")
+
+# Load relevant packages
+require(pacman)
+p_load(tidyverse,fixest, stargazer,knitr,kableExtra,jtools,ggstance,broom,broom.mixed,skimr)
+
+#===============================================================================
+# Carga y exploración del conjunto de datos
+#===============================================================================
+# Import dataset
+load(url("https://github.com/ignaciomsarmiento/datasets/blob/main/bike.RData?raw=true"))
+
+str(bike)
+names(bike)
+
+#===============================================================================
+# Nueva Data (dat)
+# Toma las Variables que necesita
+
+#select variables used in he analysis
+bike.features.of.interest = c('season','holiday', 'workingday', 'weathersit', 'temp', 'hum', 'windspeed', 'days_since_2011')
+X <- bike %>% select(bike.features.of.interest)
+
+y <- bike %>% 
+  select(cnt)  %>%
+  rename(y=cnt)
+
+dat = cbind(X, y)
+
+skim(dat) 
+rm(X,bike,y)
+#===============================================================================
+# Estimación de regresión lineal e informes de coeficientes
+#===============================================================================
+
+# Todas son codigo para la MCO/OLS, pero es mejor ´modfe´, pues 
+# VARIABLE: Estimate, Std., Error, t value, Pr(>|t|)
+# RMSE, Adj. R2
+
+mod <- lm(y ~ ., data = dat, x = TRUE)
+modglm <- glm(y ~ ., data = dat)
+modfe <- feols(y ~ season+holiday+workingday+weathersit+temp+hum+windspeed+days_since_2011, data = dat)
+
+# Interpretación de los coeficientes: en las MCO simples.
+# Como dijimos antes, una ventaja de los modelos lineales es su interpretación. 
+# Sin embargo, a la hora de interpretar las variables, hay que prestar atención 
+# a si son numéricos o categóricos:
+
+# Interpretación de una característica numérica (temperatura): 
+# Un aumento de la temperatura en 1 grado Celsius aumenta el número previsto de 
+# bicicletas en 110.7 cuando todas las demás características permanecen fijas.
+
+# Interpretación de una característica categórica ("weathersit"): 
+# El El número estimado de bicicletas es de -1901.5 menos cuando llueve, nevado, 
+# o tormentoso, en comparación con el buen tiempo, asumiendo de nuevo que todos 
+# los Otras características no cambian.
+
+# Cuando el tiempo está nublado ("weathersitMISTY"), 
+# el pronóstico el número de bicicletas es -379,4 menos en comparación con el 
+# buen tiempo, dado que todo Otras características siguen siendo las mismas.
+
+# visualizar los resultados
+stargazer(mod,modglm, type="text")
+summary(modfe)
+
+# Muestra en la Ventana de ´View´ los datos, es más amigable
+lm_summary <- summary(mod)$coefficients
+lm_summary_print  <-  lm_summary
+lm_summary_print[,'t value'] <-  abs(lm_summary_print[,'t value'])
+
+pretty_rownames = function(rnames){
+  rnames = gsub('^`', '', rnames)
+  rnames = gsub('`$', '', rnames)
+  rnames = gsub('`', ':', rnames)
+  rnames
+}
+
+kable(lm_summary_print[,c('Estimate', 'Std. Error', 't value')], digits = 1, col.names = c('Weight', 'SE', "|t|"), booktabs = TRUE, center = TRUE) %>% kable_styling(position = "center")
+
+
+# Biblioteca tidyR
+# Output as a dataframe
+tidy(mod)
+
+# Biblioteca jtools
+# Esta biblioteca es versátil, ya que permite transformar fácilmente los 
+# errores estándar, los coeficientes y los gráficos de visualización. 
+# Por ejemplo, para informar de errores estándar robustos:
+
+# Errores Estándar Robustos:
+# Para corregir la Heterocedasticidad -> Var(e_i|X) != 0 
+# Los errores estándar robustos son una forma de corregir este problema. 
+# Se calculan de manera que sean menos sensibles a la heterocedasticidad.
+# El más común es"HC1"
+cat("\014")
+summ(mod)
+summ(mod, robust = "HC1")
+
+
+# Para obtener coeficientes estandarizados/escalados:
+summ(mod, scale = TRUE)
+
+# Una operación típica en el aprendizaje automático es normalizar las variables. 
+# Estandarizar variables permite que todas las variables estén en la misma escala, 
+# principalmente haciendo que la media de estas variables sea 0 y su desviación 
+# estándar 1. Para ello, restamos la media de cada variable y la dividimos por su 
+# desviación típica:
+
+# Z_i = (x_i - e_i) / StandardDeviation_i
+
+# La estandarización de las variables tiene consecuencias en la interpretación
+# de los coeficientes. Cuando nuestra variable dependiente no está escalada,
+# interpretamos βj como "A cambio de 1 desviación estándar en x_j se asocia con
+# un cambio de β de Y.” 
+
+# Si nuestra variable dependiente está escalada, interpretamos βj como Un cambio
+# de 1 estándar desviación en x_j se asocia con Un cambio de β estándar 
+# desviaciones de Y.” 
+
+# Además, recuerde que si hay una variable categórica en lugar de una variable
+# numérica En nuestro análisis, entonces su coeficiente estandarizado no puede
+# ser interpretado ya que no tiene sentido cambiar x por 1 desviación estándar.
+
+#===============================================================================
+# Interpretación visual
+#===============================================================================
+
+ggplot(dat, aes(y = y, x = temp)) +
+  geom_point() + # add points
+  stat_smooth(formula = 'y ~ x', method = lm, se = FALSE, 
+              size = 1) +  #fit the linear model in the plot
+  theme_bw() + #black and white theme
+  labs(x = "Temperature in Celsius",  
+       y = "Number of bicycles rented",
+       title = "Predicted values with changes in temperature") # labels
+
+#===============================================================================
+# Gráfico de coeficientes
+#===============================================================================
+# En lugar de presentar la información en una tabla, se elabora un gráfico de 
+# coeficientes a veces es más eficaz para mostrar los resultados de modelos. 
+# Aquí está la trama que ilustra los resultados de la anterior modelo de 
+# regresión lineal.
+
+# En primer lugar, tenemos que construir nuestros intervalos de confianza, 
+# van a seguir la fórmula:
+ 
+# CI_i = x.Barra_i +/- z * DesviaciónEstandarDelError
+
+# Donde z corresponde al valor del nivel de confianza
+
+# Building the plot by ourselves
+coefs = data.frame(
+  Features = rownames(lm_summary),
+  Estimate = lm_summary[,'Estimate'],
+  std_error = lm_summary[,'Std. Error']
+)
+
+# La función qnorm() encuentra el valor límite que determina el área
+# bajo la curva de densidad normal antes de alfa/2.
+alpha = 0.05 # 95% Confidence Interval
+coefs$lower = coefs$Estimate - qnorm(alpha/2) * coefs$std_error
+coefs$upper = coefs$Estimate + qnorm(alpha/2) * coefs$std_error
+coefs = coefs[!(coefs$Features == '(Intercept)'),]
+
+# Grafica de los CI
+ggplot(coefs) +
+  geom_vline(xintercept = 0, linetype = 4) + #adds a vertical line at zero
+  geom_point(aes(x = Estimate, y = Features)) + #point estimate
+  geom_segment(aes(y = Features, yend = Features, x = lower, xend = upper),
+               arrow = arrow(angle = 90, ends = 'both', 
+                             length = unit(0.1, 'cm'))) + #segment representing the CI
+  labs(x = 'Coeffienient estimate') +
+  theme_bw()
+

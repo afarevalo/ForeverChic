@@ -18,7 +18,7 @@ library(lubridate)
 #===============================================================================
 
 # Input del Usuario
-ruta_archivo <- "C:/Users/windows/Downloads/reporte_de_ventas.xlsx"
+ruta_archivo <- "C:/Users/windows/Downloads/reporte_de_ventas_Feb.xlsx"
 
 # Inicializar la Variable ´Cambio´
 Cambio <- NA
@@ -53,6 +53,7 @@ tryCatch({
   #===============================================================================
   # Condicional para corregir el error de AgendaPro con la gif card
   Data$`Gift card` <- ifelse(Data$`Gift card` == 0, 1,Data$`Gift card`)
+  
   #===============================================================================
   # Corrección del Tipo de Variable
   #===============================================================================

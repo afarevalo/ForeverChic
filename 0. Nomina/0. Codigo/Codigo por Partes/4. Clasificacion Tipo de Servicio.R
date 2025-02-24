@@ -10,7 +10,7 @@ cat("\014")
 # }, error = function(e) {
 #   cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
 #   stop(e)  # Detiene toda la ejecución
-#})
+# })
 #===============================================================================
 
 # Lista de Profesionales
@@ -41,6 +41,7 @@ Data$Tipo <- "NA"
 
 # Clasificación de los servicios
 Data$Tipo <- ifelse(Data$`Prestador/Vendedor` == "Nydia Gamba" & 
+                      !(Data$`Servicio/Producto` == "Propina desde") &
                       !(Data$`Servicio/Producto` %in% servicios[[12]]$items), "Alianza",
                     sapply(Data$`Servicio/Producto`, function(producto) {
                       match <- sapply(servicios, function(servicio) producto %in% 
