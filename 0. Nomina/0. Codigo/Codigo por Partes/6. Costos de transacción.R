@@ -1,6 +1,6 @@
 #===============================================================================
 # Limpiar el entorno
-#rm(list = ls())
+# rm(list = ls())
 cat("\014")
 #===============================================================================
 # tryCatch({
@@ -31,6 +31,7 @@ suma_efectivo <- rowSums(Data[, c("Efectivo", "Otro", "Gift card", "Nequi Carlos
 # 0 <- Pago solo en efectivo
 # 1 <- Pago solo con tarjeta
 # 2 <- Pago con ambos medios
+
 Data$indicador_costo <- ifelse(suma_costo >= 10 & suma_efectivo >=10, 2, 
                                ifelse(suma_costo >= 2, 1, 
                                 ifelse(suma_efectivo >= 10, 0, NA)))
@@ -120,6 +121,8 @@ Data$costo_tx <- ifelse(Data$indicador_costo == 1, Data$Precio * Data$pct_trans,
 Data <- Data %>% select(-sum_tarjeta, -indicador_costo, -pct_trans)
 
 #===============================================================================
+
+rm(suma_costo, suma_efectivo)
 
 # Cambiar los valores en ´Total´ utilizando el valor existente del mismo Identificador
 #Data <- Data %>%

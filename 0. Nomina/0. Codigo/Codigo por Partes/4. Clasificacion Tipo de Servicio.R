@@ -23,12 +23,12 @@ Base_Profesionales <- as.vector(Base_Profesionales[[1]])
 sheets <- c("1. Tocador", "2. Spa", "3. Depilacion", "4. Bac", 
             "5. Colorimetria", "6. Venta", "7. Maquillaje", 
             "8. Maquillaje Salon", "9. Accesorios", "10. Queratina", 
-            "11. TermoCut", "12. Venta N", "13. Companeros N", "14. Masaje")
+            "11. TermoCut", "12. Venta N", "13. Companeros N", "14. Masaje", "15. Otros")
 
 tipos <- c("Tocador", "Spa", "Depilacion", "Bac", 
            "Colorimetria", "Venta", "Maquillaje", 
            "Maquillaje_S", "Accesorios", "Queratina", 
-           "TermoCut", "Venta_N", "Compa_N", "Masaje")
+           "TermoCut", "Venta_N", "Compa_N", "Masaje", "Otros")
 
 # Leer todas las hojas y guardar en una lista de vectores
 servicios <- lapply(seq_along(sheets), function(i) {
@@ -51,8 +51,6 @@ Data$Tipo <- ifelse(Data$`Prestador/Vendedor` == "Nydia Gamba" &
                       else NA
                     }))
 
-# Clasifica los Bonos
-Data$Tipo <- ifelse(Data$`Servicio/Producto` == "Bonos desde", "Bonos", Data$Tipo)
 rm(servicios, sheets, tipos)
 
 #===============================================================================

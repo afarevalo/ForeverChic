@@ -3,17 +3,17 @@
 #rm(list = ls())
 cat("\014")
 #===============================================================================
-tryCatch({
-  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-  source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
-  source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
-  source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
-  source("0. Codigo/Codigo por Partes/5. Manejo Partícipes.R")
-  source("0. Codigo/Codigo por Partes/6. Costos de transacción.R")
-}, error = function(e) {
-  cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
-  stop(e)  # Detiene toda la ejecución
-})
+# tryCatch({
+#   source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
+#   source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
+#   source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
+#   source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
+#   source("0. Codigo/Codigo por Partes/5. Manejo Partícipes.R")
+#   source("0. Codigo/Codigo por Partes/6. Costos de transacción.R")
+# }, error = function(e) {
+#   cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
+#   stop(e)  # Detiene toda la ejecución
+# })
 #===============================================================================
 
 # Inicalización de la Variable % de Participación Producto
@@ -43,3 +43,4 @@ Data$val_prod <- NA
 Data$val_prod <- ifelse(Data$Precio > 0, Data$pct_prod * Data$Precio, 
                  ifelse(Data$Precio == 0, Data$pct_prod * Data$`Precio de Lista`,
                         Data$val_prod))
+rm(Producto_tocador)
