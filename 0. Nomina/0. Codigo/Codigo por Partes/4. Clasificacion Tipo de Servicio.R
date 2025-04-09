@@ -1,16 +1,16 @@
 #===============================================================================
 # Limpiar el entorno
-# rm(list = ls())
+rm(list = ls())
 cat("\014")
 #===============================================================================
-# tryCatch({
-#   source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-#   source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
-#   source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
-# }, error = function(e) {
-#   cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
-#   stop(e)  # Detiene toda la ejecución
-# })
+tryCatch({
+  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
+  source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
+  source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
+}, error = function(e) {
+  cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
+  stop(e)  # Detiene toda la ejecución
+})
 #===============================================================================
 
 # Lista de Profesionales
@@ -67,3 +67,47 @@ if (any(is.na(Data$Tipo))) {
   # Detener ejecución completamente
   stop("Ejecución detenida: Existen servicios sin clasificar en la variable 'Tipo'.")
 }
+
+#===============================================================================
+# Corrige si hay precios 1 en la variable `Precio de Lista`
+if (any(Data$`Precio de Lista` == 1)) {
+# Corrige errores de facturación
+Data_precios <- Data %>% select("Precio de Lista", "Servicio/Producto")
+# Filtrar por precios distitos de 1
+Data_precios <- Data_precios %>% filter(`Precio de Lista` != 1)
+Data_precios <- Data_precios %>% arrange(desc(`Precio de Lista`))
+Data_precios <- Data_precios %>% distinct(`Servicio/Producto`, .keep_all = TRUE)
+
+# Remplaza el 1 por un precio de lista mayor a 1. 
+Data_actualizado <- Data %>%
+  left_join(Data_precios, by = "Servicio/Producto", suffix = c("", "_nuevo")) %>%
+  mutate(`Precio de Lista` = ifelse(`Precio de Lista` == 1, `Precio de Lista_nuevo`, `Precio de Lista`)) %>%
+  select(-`Precio de Lista_nuevo`)  # eliminamos la columna auxiliar
+
+Data <- Data_actualizado
+
+# Elimina las datas auxiliares
+rm(Data_actualizado, Data_precios)
+
+# Corregir el precio y el total
+Data$Precio <- ifelse(Data$Precio == 1, 0, Data$Precio)
+Data$Total <- ifelse(Data$Total == 1, 0, Data$Total)
+
+}
+
+#===============================================================================
+
+# Verificar si hay precios 1 en la variable `Precio de Lista`
+if (any(Data$`Precio de Lista` == 1)) {
+  # Extraer los servicios/productos sin clasificar
+  precio_error <- Data$Identificador[Data$`Precio de Lista` == 1]
+  precio_error <- na.omit(precio_error)
+  
+  # Mostrar mensaje de alerta con lista de servicios sin clasificar
+  cat("\n⚠️  ERROR: Servicios sin clasificar en la base de datos:\n")
+  print(precio_error[1])
+  
+  # Detener ejecución completamente
+  stop("Ejecución detenida: Existen servicios mal facturados, pues el Precio de Lista es 1.")
+}
+

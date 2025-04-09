@@ -1,6 +1,6 @@
 #===============================================================================
 # Limpiar el entorno
-rm(list = ls())
+# rm(list = ls())
 cat("\014")
 #===============================================================================
 # tryCatch({
@@ -20,46 +20,33 @@ cat("\014")
 # Ruta de la Base de Datos de Descuentos
 ruta_retardos_formato <- "2. Descuentos - Retardos"
 formato_retardo <- file.path(ruta_retardos_formato, "0. Formato - Retardos.xlsx")
-rm(ruta_retardos_formato)
 
-# Lógica condicional según el valor de Cambio
-if (Cambio == 1) {
-  
-  # Obtén la lista de archivos en el directorio actual o especificado
-  archivos_retardo <- list.files(ruta_retardos)
-  
-  # Ordenar los archivos según los números
-  ultimo_descuento <- archivos_retardo[length(archivos_retardo)]
-  
-  # Si Cambio es 1, usar el último archivo como archivo destino
-  archivo_destino <- file.path(ruta_descuento, ultimo_descuento)
-  
-  # Convertir la ruta relativa a ruta absoluta
-  archivo_destino_absoluto <- normalizePath(archivo_destino, winslash = "/", mustWork = TRUE)
-  
-  # Abrir el archivo copiado con el programa predeterminado del sistema
-  #shell.exec(archivo_destino_absoluto)
-  
-} else {
-     
-        # Si Cambio es 0, generar el nombre del nuevo archivo
-        # Genera el nombre de la Base de Datos para Descuentos
-        cadena_retardos <- paste0(". Retardos ", MES1, " ", MIN, " al ", MES2, " ", MAX, " - ", ANIO)
-        nuevo_retardo <- paste0(numero_extraido, cadena_retardos, ".xlsx")
-        rm(cadena_retardos)
-        
-        # Ruta completa del archivo destino
-        archivo_retardo <- file.path(ruta_retardos, nuevo_retardo)
-        
-        # Copiar el archivo a la nueva ubicación con el nuevo nombre
-        file.copy(from = formato_retardo, to = archivo_retardo, overwrite = TRUE)
+# Definir las abreviaturas de los meses en español con su número correspondiente
+meses_esp <- c("ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC")
 
-        # Convertir la ruta relativa a ruta absoluta
-        archivo_destino_absoluto <- normalizePath(archivo_retardo, winslash = "/", mustWork = TRUE)
-        
-        # Abrir el archivo copiado con el programa predeterminado del sistema
-        #shell.exec(archivo_destino_absoluto)
-        
-        rm(archivo_destino_absoluto, archivo_retardo, formato_retardo, nuevo_retardo)
-  
-       }
+# Genera "01", "02", ..., "12"
+numeros_meses <- sprintf("%02d", 1:12)
+mes_dict <- setNames(numeros_meses, meses_esp)
+
+# Crear los nombres de archivo esperados
+archivo_mes1 <- file.path(ruta_retardos, sprintf("%s. Retardos - %s.xlsx", mes_dict[MES1], MES1))
+archivo_mes2 <- file.path(ruta_retardos, sprintf("%s. Retardos - %s.xlsx", mes_dict[MES2], MES2))
+
+# Verificar si existen los archivos
+existe_mes1 <- file_exists(archivo_mes1)
+
+# Copiar el archivo si es necesario
+if (!existe_mes1) {
+  file_copy(formato_retardo, archivo_mes1)
+}
+
+# Verificar si existen los archivos
+existe_mes2 <- file_exists(archivo_mes2)
+
+if (!existe_mes2) {
+  file_copy(formato_retardo, archivo_mes2)
+}
+
+# Eliminar variables
+rm(ruta_retardos_formato, formato_retardo, meses_esp, numeros_meses, mes_dict,
+   existe_mes1, existe_mes2, ruta_retardos)

@@ -15,17 +15,17 @@ cat("\014")
 # Concicional con "O" y Data NA <- if (!exists("Data") || is.null(Data) || nrow(Data) == 0)
 if (Cambio == 1) {
   
-  # Si "Data" no existe, está vacío o es nulo, cargar los datos
-  archivos_ventas <- list.files(ruta_data)
-  
-  # Ordenar los archivos según los números
-  ultima_data <- archivos_ventas[length(archivos_ventas)]
+  # # Si "Data" no existe, está vacío o es nulo, cargar los datos
+  # archivos_ventas <- list.files(ruta_data)
+  # 
+  # # Ordenar los archivos según los números
+  # ultima_data <- archivos_ventas[length(archivos_ventas)]
 
   # Cargar la Data  
-  Data <- read_excel(file.path(ruta_data, ultima_data))
+  Data <- read_excel(file.path(ruta_data, ultimo_archivo))
   
   # Eliminar Variables
-  rm(ultima_data, archivos_ventas)
+  rm(ultimo_archivo, ruta_archivo)
   
 } else {
     
@@ -34,10 +34,10 @@ if (Cambio == 1) {
       write_xlsx(Data, file.path(ruta_data, nuevo_nombre))
       
       # Elimina la Base de Datos Original
-      #file.remove(ruta_archivo)
-      rm(nuevo_nombre)
-
-      }
+      file.remove(ruta_archivo)
+      rm(nuevo_nombre, ruta_archivo)
+      
+}
 
 # Elimina variables
 rm(ruta_data)

@@ -1,6 +1,6 @@
 #===============================================================================
 # Limpiar el entorno
-#rm(list = ls())
+# rm(list = ls())
 cat("\014")
 #===============================================================================
 # tryCatch({
@@ -15,7 +15,6 @@ cat("\014")
 #   stop(e)  # Detiene toda la ejecución
 # })
 #===============================================================================
-
 # Inicalización de la Variable % de Participación Producto
 # Participación Producto <- Cuanto se gasta en cada servicio, APROX
 Data$pct_prod <- NA
@@ -33,14 +32,11 @@ Data$pct_prod <- ifelse(Data$Tipo == "Spa", 0.26,
                       Producto_tocador/Data$`Precio de Lista`,
                       ifelse(Data$Tipo == "Venta", 0.56, 
                       ifelse(Data$Tipo == "Maquillaje_S", 0, 0)))))))))
-
 #===============================================================================
-
-# Inicalización de la Variable Valor Producto
+# Inicalización de la Variable Valor Producto 
 Data$val_prod <- NA
 
 # Condicional
 Data$val_prod <- ifelse(Data$Precio > 0, Data$pct_prod * Data$Precio, 
                  ifelse(Data$Precio == 0, Data$pct_prod * Data$`Precio de Lista`,
                         Data$val_prod))
-rm(Producto_tocador)

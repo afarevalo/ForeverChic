@@ -13,7 +13,6 @@ cat("\014")
 #   stop(e)  # Detiene toda la ejecución
 # })
 #===============================================================================
-
 # Vector de Nombres de Partícipes FOREVER para manejo del Servicio a los Socios
 participes <- c("Andres Arevalo", "Andres Arévalo", "Andrés Arevalo",
                 "Andrés Arévalo", "Carlitos Arevalo", "Carlos Arevalo",

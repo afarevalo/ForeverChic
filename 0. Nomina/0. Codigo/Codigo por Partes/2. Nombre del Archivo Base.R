@@ -28,7 +28,8 @@ if (Cambio == 1) {
   
   # Obtener los archivos dentro de la última carpeta
   ultimo_archivo <- list.files(path = ultima_carpeta, full.names = FALSE)
-
+  ultimo_archivo <- tail(ultimo_archivo, 1)
+  
   # Eliminar la extensión del archivo
   archivo_sin_ext <- sub("\\.xlsx$", "", ultimo_archivo)
   
@@ -47,7 +48,7 @@ if (Cambio == 1) {
   ruta_retardos <- file.path(ruta_retardos, ANIO)
   ruta_resultados <- file.path(ruta_resultados, ANIO)
 
-  rm(archivo_sin_ext, carpetas_ventas, ultimo_archivo, ultima_carpeta)
+  rm(archivo_sin_ext, carpetas_ventas, ultima_carpeta)
 }
 
 #===============================================================================
@@ -102,7 +103,8 @@ if (Cambio == 0) {
     dir.create(file.path(ruta_fondo, ANIO))
     dir.create(file.path(ruta_varios, ANIO))
     dir.create(file.path(ruta_resultados, ANIO))
-
+    dir.create(file.path(ruta_retardos, ANIO))
+      
     } 
   
   # Definir las nuevas rutas de los archivo
