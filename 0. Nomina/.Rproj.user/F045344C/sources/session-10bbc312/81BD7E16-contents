@@ -1,33 +1,33 @@
 #===============================================================================
 # Limpiar el entorno
-rm(list = ls())
+# rm(list = ls())
 cat("\014")
 #===============================================================================
-tryCatch({
-  source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-  source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
-  source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
-  source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
-  source("0. Codigo/Codigo por Partes/5. Manejo Partícipes.R")
-  source("0. Codigo/Codigo por Partes/6. Costos de transacción.R")
-  source("0. Codigo/Codigo por Partes/7. Participación Producto.R")
-  source("0. Codigo/Codigo por Partes/8. Generar la Base de Retardos.R")
-  source("0. Codigo/Codigo por Partes/9. Generar la Base de Descuentos.R")
-  source("0. Codigo/Codigo por Partes/10. Generar la Base de Color.R")
-  source("0. Codigo/Codigo por Partes/11. Completar Base con Color.R")
-  source("0. Codigo/Codigo por Partes/12. Completar Base de Retardos.R")
-  source("0. Codigo/Codigo por Partes/13. Completar Descuentos Fondo.R")
-  source("0. Codigo/Codigo por Partes/14. Porcentaje de los Profesionales.R")
-  source("0. Codigo/Codigo por Partes/15. Participación Salón.R")
-  source("0. Codigo/Codigo por Partes/16. Descuento Ajuste Producto.R")
-  source("0. Codigo/Codigo por Partes/17. Descuentos Varios a Profesionales.R")
-}, error = function(e) {
-  cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
-  stop(e)  # Detiene toda la ejecución
-})
+# tryCatch({
+#   source("0. Codigo/Codigo por Partes/01. Cargar la Base.R")
+#   source("0. Codigo/Codigo por Partes/02. Nombre del Archivo Base.R")
+#   source("0. Codigo/Codigo por Partes/03. Agregar y Eliminar la Base.R")
+#   source("0. Codigo/Codigo por Partes/04. Clasificacion Tipo de Servicio.R")
+#   source("0. Codigo/Codigo por Partes/05. Manejo Partícipes.R")
+#   source("0. Codigo/Codigo por Partes/06. Costos de transacción.R")
+#   source("0. Codigo/Codigo por Partes/07. Participación Producto.R")
+#   source("0. Codigo/Codigo por Partes/08. Generar la Base de Retardos.R")
+#   source("0. Codigo/Codigo por Partes/09. Generar la Base de Descuentos.R")
+#   source("0. Codigo/Codigo por Partes/10. Generar la Base de Color.R")
+#   source("0. Codigo/Codigo por Partes/11. Completar Base con Color.R")
+#   source("0. Codigo/Codigo por Partes/12. Completar Base de Retardos.R")
+#   source("0. Codigo/Codigo por Partes/13. Completar Descuentos Fondo.R")
+#   source("0. Codigo/Codigo por Partes/14. Porcentaje de los Profesionales.R")
+#   source("0. Codigo/Codigo por Partes/15. Participación Salón.R")
+#   source("0. Codigo/Codigo por Partes/16. Descuento Ajuste Producto.R")
+#   source("0. Codigo/Codigo por Partes/17. Descuentos Varios a Profesionales.R")
+# }, error = function(e) {
+#   cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
+#   stop(e)  # Detiene toda la ejecución
+# })
 #===============================================================================
 
-# Lista de Profesionales 
+# Lista de Profesionales
 Tipo_Profesionales <- read_excel("0. Codigo/Info.xlsx", sheet = "0. Profesionales")
 
 # Crear el Nombre de la carpeta donde se exportaran los resultados
@@ -118,9 +118,6 @@ Data_Alianza <- Data %>% select(-val_prod, -Tipo, -pct_prod, -val_neto, -Part_sa
 Data_Tocador$val_prod <- ifelse(Data_Tocador$Tipo == "Colorimetria", 
                                 Data_Tocador$val_prod, 0)
 Data_Tocador <- Data_Tocador %>% select(-Tipo)
-
-# Vectores de profesionales
-
 
 # Crear los vectores dinámicamente
 profesionales_tipo <- split(Tipo_Profesionales$Profesional, Tipo_Profesionales$Tipo)
@@ -221,8 +218,9 @@ for (trabajador in unique(Data$`Prestador/Vendedor`)) {
 }
 
 rm(header_style,datos_trabajador, Data_Alianza, Data_Spa, Data_Tocador,
-   base_datos,accounting_style)
+   base_datos, accounting_style, wb)
 rm(yellow_row_style)
-rm(alianza, wb, trabajador, suma_negativos, suma_positivos, ruta_archivo, tocador, spa, 
-   ruta_resultados, revisar, nombre_carpeta, fila, filas_negativas, fila, col_index, cadena_carpeta)
+rm(alianza, trabajador, suma_negativos, suma_positivos, ruta_archivo, 
+   tocador, spa, revisar, nombre_carpeta, fila, filas_negativas, 
+   col_index, cadena_carpeta)
 
