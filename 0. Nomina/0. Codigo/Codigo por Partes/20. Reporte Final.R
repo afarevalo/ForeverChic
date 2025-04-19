@@ -67,4 +67,4 @@ cat(paste0("En total de nómina se deben pagar: ",
 rm(Base_Profesionales, Cambio, i, MAX, MES1, MES2, MIN, numero_extraido, 
    total_nomina, ruta_resultados, ANIO)
 
-rm(Data, reporte)
+rm(reporte)
