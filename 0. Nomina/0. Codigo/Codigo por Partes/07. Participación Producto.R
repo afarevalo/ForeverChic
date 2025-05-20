@@ -4,12 +4,12 @@
 cat("\014")
 #===============================================================================
 # tryCatch({
-#   source("0. Codigo/Codigo por Partes/1. Cargar la Base.R")
-#   source("0. Codigo/Codigo por Partes/2. Nombre del Archivo Base.R")
-#   source("0. Codigo/Codigo por Partes/3. Agregar y Eliminar la Base.R")
-#   source("0. Codigo/Codigo por Partes/4. Clasificacion Tipo de Servicio.R")
-#   source("0. Codigo/Codigo por Partes/5. Manejo Partícipes.R")
-#   source("0. Codigo/Codigo por Partes/6. Costos de transacción.R")
+#   source("0. Codigo/Codigo por Partes/01. Cargar la Base.R")
+#   source("0. Codigo/Codigo por Partes/02. Nombre del Archivo Base.R")
+#   source("0. Codigo/Codigo por Partes/03. Agregar y Eliminar la Base.R")
+#   source("0. Codigo/Codigo por Partes/04. Clasificacion Tipo de Servicio.R")
+#   source("0. Codigo/Codigo por Partes/05. Manejo Partícipes.R")
+#   source("0. Codigo/Codigo por Partes/06. Costos de transacción.R")
 # }, error = function(e) {
 #   cat("\n⛔ Se ha detectado un error. Deteniendo ejecución.\n")
 #   stop(e)  # Detiene toda la ejecución

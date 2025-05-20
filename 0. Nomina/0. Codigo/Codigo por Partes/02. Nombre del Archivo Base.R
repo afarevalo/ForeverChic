@@ -89,6 +89,7 @@ if (Cambio == 0) {
   ruta_fondo <- "2. Descuentos - Fondo y Anticipos"
   ruta_retardos <- "2. Descuentos - Retardos"
   ruta_resultados <- "3. Resultados"
+  ruta_consolidado <- "4. Consolidado General"
   
   #===============================================================================
   # Crear Carpeta por Año, Si es necesario
@@ -101,9 +102,9 @@ if (Cambio == 0) {
     dir.create(file.path(ruta_data, ANIO))
     dir.create(file.path(ruta_color, ANIO))
     dir.create(file.path(ruta_fondo, ANIO))
-    dir.create(file.path(ruta_varios, ANIO))
     dir.create(file.path(ruta_resultados, ANIO))
     dir.create(file.path(ruta_retardos, ANIO))
+    dir.create(file.path(ruta_consolidado, ANIO))
       
     } 
   
@@ -113,6 +114,9 @@ if (Cambio == 0) {
   ruta_fondo <- file.path(ruta_fondo, ANIO)
   ruta_retardos <- file.path(ruta_retardos, ANIO)
   ruta_resultados <- file.path(ruta_resultados, ANIO)
+  ruta_consolidado <- file.path(ruta_consolidado, ANIO)
+  
+  rm(ruta_consolidado)
   
   #===============================================================================
 
