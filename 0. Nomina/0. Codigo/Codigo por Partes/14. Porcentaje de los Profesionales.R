@@ -56,18 +56,19 @@ Data$Part_profesional <- ifelse(Data$`Nombre cliente` %in% Base_Profesionales & 
                          ifelse(Data$Tipo == "Depilacion" & Data$Precio > 0, Data$val_neto * Parte_Depilacion,
                          ifelse(Data$Tipo == "Venta" & Data$Precio > 0, Data$Precio * Parte_Venta, 
                          ifelse(Data$Tipo == "Propina" & Data$Precio > 0, Data$val_neto, 
-                                ifelse(Data$Tipo == "Colorimetria" & Data$Precio > 0, 
+                         ifelse(Data$Tipo == "Colorimetria" & Data$Precio > 0, 
                                        Data$Precio * Parte_Color - Data$val_prod, 
-                                       ifelse(Data$Tipo == "Maquillaje_S" & Data$Precio > 0, 
+                         ifelse(Data$Tipo == "Maquillaje_S" & Data$Precio > 0, 
                                               Data$Precio * Parte_Maquillaje_S - Data$val_prod, 
-                                              ifelse(Data$Tipo == "Maquillaje" & Data$Precio > 0, Data$val_neto * Parte_Maquillaje_Lina, 
-                                                     ifelse(Data$Tipo == "Accesorios" & Data$Precio > 0, Data$val_neto,
-                                                            ifelse(Data$Tipo == "Queratina" & Data$Precio > 0,  Data$Precio * Parte_Tocador - Data$val_prod, 
-                                                                   ifelse(Data$Tipo == "Venta_N" & Data$Precio > 0, Data$val_neto *  Parte_Venta_N,
-                                                                          ifelse(Data$Tipo == "TermoCut" & Data$Precio > 0, Data$Precio * Parte_TermoCut, 
-                                                                                 ifelse(Data$Tipo == "Masaje" & Data$Precio > 0, Data$Precio * Parte_Masaje, 
-                                                                                        ifelse(Data$Tipo == "Descuento", Data$Part_profesional, 
-                                                                                               ifelse(Data$Tipo == "Otros", Parte_Otros, Data$Part_profesional))))))))))))))))))
+                         ifelse(Data$Tipo == "Maquillaje" & Data$Precio > 0, Data$val_neto * Parte_Maquillaje_Lina, 
+                         ifelse(Data$Tipo == "Accesorios" & Data$Precio > 0, Data$val_neto,
+                         ifelse(Data$Tipo == "Queratina" & Data$Precio > 0,  Data$Precio * Parte_Tocador - Data$val_prod, 
+                         ifelse(Data$Tipo == "Venta_N" & Data$Precio > 0, Data$val_neto *  Parte_Venta_N,
+                         ifelse(Data$Tipo == "TermoCut" & Data$Precio > 0, Data$Precio * Parte_TermoCut, 
+                         ifelse(Data$Tipo == "Masaje" & Data$Precio > 0, Data$Precio * Parte_Masaje, 
+                         ifelse(Data$Tipo == "Descuento", Data$Part_profesional, 
+                         ifelse(Data$Tipo == "Otros", Parte_Otros, Data$Part_profesional
+                                ))))))))))))))))))
 
 #===============================================================================
 Data$Ayuda[is.na(Data$Ayuda)] <- 0
@@ -105,7 +106,8 @@ if (any(Data$Ayuda == 1)) {
 # Eliminar variables
 rm(Parte_Alianza, Parte_Spa, Parte_Bac, Parte_Tocador, Parte_Depilacion, 
    Parte_Venta, Parte_Maquillaje_Lina, Parte_Maquillaje_S, 
-   Parte_Alianza_Producto, Parte_Venta_N, Parte_TermoCut, Parte_Masaje)
+   Parte_Alianza_Producto, Parte_Venta_N, Parte_TermoCut, Parte_Masaje,
+   Parte_Otros)
 
 #===============================================================================
 

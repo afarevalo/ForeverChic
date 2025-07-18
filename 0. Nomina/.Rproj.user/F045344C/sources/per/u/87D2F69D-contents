@@ -1,0 +1,123 @@
+#===============================================================================
+# Limpiar el entorno
+rm(list = ls())
+cat("\014")
+#===============================================================================
+# Codigo para importar la Base de datos de las Ventas
+#===============================================================================
+library(tidyverse)      
+library(lubridate)      
+library(readxl)         
+library(janitor)        
+library(scales)
+cat("\014")
+
+#===============================================================================
+# 1. PARÁMETROS GLOBALES --------------------------------------------------------
+#===============================================================================
+FILE_PATH     <- "C:/Users/windows/Downloads/HP_TIR.xlsx"
+CORTE_COL     <- "jul_de_2025"          # última celda “histórica” con total pagado
+CORTE_LIMITE  <- as.Date("2025-08-01")   # todo pago antes de esta fecha es histórico
+
+# Inflación anual por año de inicio
+infl_tbl <- tribble(
+  ~anio_inicio, ~infl_anual,
+  2023,         0.093,
+  2024,         0.052
+)
+
+excel_origin <- as.Date("1899-12-30")  # origen para fechas Excel
+
+#===============================================================================
+# 2. FUNCIONES AUXILIARES -------------------------------------------------------
+#===============================================================================
+parse_num <- function(x, loc = locale(grouping_mark = ".", decimal_mark = ",")) {
+  readr::parse_number(as.character(x), locale = loc)
+}
+
+get_monthly_infl <- function(fecha_ini) {
+  yr   <- year(fecha_ini)
+  tasa <- infl_tbl |> filter(anio_inicio == yr) |> pull(infl_anual)
+  if (length(tasa) == 0) tasa <- 0
+  (1 + tasa)^(1/12) - 1
+}
+
+irr_mensual <- function(cf, lower = -0.99, upper = 2) {
+  f <- function(r) sum(cf / (1 + r)^(seq_along(cf) - 1))
+  out <- tryCatch(uniroot(f, c(lower, upper))$root,
+                  error = function(e) NA_real_)
+  out
+}
+
+#===============================================================================
+# 3. LECTURA Y LIMPIEZA DE DATOS ------------------------------------------------
+#===============================================================================
+df_raw <- read_excel(FILE_PATH)
+
+# Renombrar columnas con fechas numéricas como "jul_de_2025", etc.
+names(df_raw) <- map_chr(names(df_raw), \(nm) {
+  if (grepl("^\\d+$", nm)) {
+    format(as.Date(as.numeric(nm), origin = excel_origin), "%b_de_%Y", locale = "es_ES")
+  } else nm
+})
+
+df_raw <- df_raw |> janitor::clean_names()
+
+mes_cols <- names(df_raw)[grepl("_de_20\\d{2}$", names(df_raw))]
+
+df <- df_raw |> 
+  mutate(
+    across(c(fecha_inicio, fecha_fin), as.Date),
+    inversion = parse_num(inversion),
+    tasa      = parse_num(tasa)  / 100,
+    tasa2     = parse_num(tasa2) / 100,
+    across(all_of(mes_cols), \(x) replace_na(parse_num(x), 0))
+  )
+
+#===============================================================================
+# 4. CÁLCULOS FILA × FILA -------------------------------------------------------
+#===============================================================================
+df_out <- df |> 
+  rowwise() |> 
+  mutate(
+    # Fechas de flujo mensual
+    meses_tot = list(seq(from = fecha_inicio,
+                         to   = fecha_fin - months(1),
+                         by   = "1 month")),
+    n_meses   = length(meses_tot[[1]]),
+    
+    # Pagos anteriores al corte
+    meses_pre = list(meses_tot[[1]][meses_tot[[1]] < CORTE_LIMITE]),
+    n_pre     = length(meses_pre[[1]]),
+    
+    # Pago promedio histórico
+    pago_pre  = if_else(n_pre > 0, get(CORTE_COL) / n_pre, 0),
+    
+    # Inflación mensual aplicada al contrato
+    infl_m    = get_monthly_infl(fecha_inicio),
+    
+    # Flujos de caja: inversión inicial, histórico prorrateado, futuros explícitos
+    cf = list(c(
+      -inversion,
+      rep(pago_pre, n_pre),
+      c_across(all_of(mes_cols))
+    )),
+    
+    # IRR mensual y anual
+    irr_m        = irr_mensual(cf),
+    tir_anual    = (1 + irr_m)^12 - 1,
+    
+    # Tasa real (ganancia efectiva sin descuento)
+    tasa_real    = sum(cf[[1]][cf[[1]] > 0]) / inversion / (n_meses / 12),
+    
+    # Detección de contratos extendidos (más largos de lo esperado)
+    dummy_ext    = as.integer(n_meses > plazo_meses)
+  ) |> 
+  ungroup() |> 
+  mutate(across(c(tasa_real, tir_anual), percent, accuracy = 0.01))
+
+#===============================================================================
+# 5. RESULTADO FINAL ------------------------------------------------------------
+#===============================================================================
+df_out
+unique(df_out$cf)
